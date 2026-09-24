@@ -79,12 +79,12 @@ async function reportListing(){
  alert('Hvala. Prijava oglasa je bila zabeležena.');
 }
 async function loadSellerProfile(d){
- if(!d.user_id)return;const {data:p}=await db.from('profiles').select('full_name,account_type,verified,company_name,company_website,company_logo_url').eq('id',d.user_id).maybeSingle();if(!p)return;
+ if(!d.user_id)return;const {data:p,error}=await db.rpc('seller_public_profile',{p_user_id:d.user_id});if(error||!p||!Object.keys(p).length)return;
  const el=document.getElementById('sellerProfile');if(!el)return;
  const name=p.account_type==='dealer'?(p.company_name||d.seller_name||'Podjetje'):(p.full_name||d.seller_name||'Zasebni prodajalec');
  const logo=p.company_logo_url?'<div class="sellerLogo" style="background-image:url(\''+esc(p.company_logo_url)+'\')"></div>':'';
  const verified=p.verified?'<span class="verified">✓ Preverjen profil</span>':'';
- const website=(p.account_type==='dealer'&&p.company_website)?'<div style="margin-top:7px"><a href="'+esc(p.company_website)+'" target="_blank" rel="noopener" class="muted">Spletna stran podjetja ↗</a></div>':'';
+ let website='';if(p.account_type==='dealer'&&p.company_website){try{const u=new URL(p.company_website);if(['http:','https:'].includes(u.protocol))website='<div style="margin-top:7px"><a href="'+esc(u.href)+'" target="_blank" rel="noopener noreferrer" class="muted">Spletna stran podjetja ↗</a></div>'}catch{}}
  el.innerHTML='<div class="sellerIdentity">'+logo+'<div><h3 style="margin:0 0 4px">'+esc(name)+'</h3><div class="muted">'+esc(d.location||'')+' · '+countryName(d.country)+'</div>'+verified+website+'</div></div>';
 }
 async function startChat(){const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return}if(!currentListing?.user_id){alert('To je testni oglas brez uporabniškega prodajalca. Pri oglasih uporabnikov bo sporočanje delovalo neposredno.');return}if(currentListing.user_id===user.id){location.href='account.html';return}
