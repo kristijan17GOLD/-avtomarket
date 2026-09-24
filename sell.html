@@ -114,7 +114,18 @@ async function loadEdit(){if(!editId)return;const user=await requireUser();if(!u
 pageTitle.textContent='Uredi oglas';pageSub.textContent='Spremeni podatke, opremo ali slike in shrani spremembe.';saveBtn.textContent='Shrani spremembe';
 brand.value=data.brand||'';model.value=data.model||'';title.value=data.title||'';year.value=data.year||'';mileage.value=data.mileage||'';fuel.value=data.fuel||'Bencin';transmission.value=data.transmission||'Avtomatik';price.value=data.price||'';document.getElementById('vehicle_location').value=data.location||'';vin.value=data.vin||'';description.value=data.description||'';existingImages=data.image_urls||[];renderEquipment(data.equipment||{});
 preview.innerHTML=existingImages.map(u=>'<img src="'+u+'">').join('')}
-async function uploadImages(user){const urls=[...existingImages];for(const file of [...photos.files].slice(0,12)){const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=user.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'-'+safe;const {error}=await db.storage.from('listing-images').upload(path,file,{cacheControl:'3600',upsert:false});if(error)throw error;const {data}=db.storage.from('listing-images').getPublicUrl(path);urls.push(data.publicUrl)}return urls}
+async function compressImage(file){
+ if(!file.type.startsWith('image/')||file.type==='image/gif')return file;
+ const bitmap=await createImageBitmap(file);
+ const max=1600,scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+ if(scale===1&&file.size<1200000)return file;
+ const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+ canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0,canvas.width,canvas.height);
+ const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',0.82));
+ bitmap.close?.();
+ return new File([blob],file.name.replace(/\.[^.]+$/,'.jpg'),{type:'image/jpeg'});
+}
+async function uploadImages(user){const urls=[...existingImages];for(const original of [...photos.files].slice(0,12)){const file=await compressImage(original);const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=user.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'-'+safe;const {error}=await db.storage.from('listing-images').upload(path,file,{cacheControl:'31536000',upsert:false});if(error)throw error;const {data}=db.storage.from('listing-images').getPublicUrl(path);urls.push(data.publicUrl)}return urls}
 async function saveListing(){const user=await requireUser();if(!user)return;saveBtn.disabled=true;saveBtn.textContent='Shranjujem...';try{const image_urls=await uploadImages(user);const payload={user_id:user.id,country:country.value,vehicle_type:vehicle_type.value,brand:brand.value.trim(),model:model.value.trim(),title:title.value.trim(),year:+year.value,mileage:+mileage.value,fuel:fuel.value,transmission:transmission.value,body_type:body.value,price:+price.value,location:(document.getElementById('vehicle_location')?.value||'').trim(),vin:vin.value.trim()||null,description:description.value.trim(),equipment:collectEquipment(),image_urls,seller_name:user.user_metadata?.full_name||user.email,status:'active',updated_at:new Date().toISOString()};
 if(!payload.brand||!payload.model||!payload.title||!payload.year||!payload.price)throw new Error('Izpolni vsaj znamko, model, naslov, letnik in ceno.');
 let error;if(editId){({error}=await db.from('listings').update(payload).eq('id',editId).eq('user_id',user.id))}else{({error}=await db.from('listings').insert(payload))}if(error)throw error;show(editId?'Spremembe so shranjene.':'Oglas je objavljen.',true);setTimeout(()=>location.href='account.html',700)}catch(e){show(e.message||'Prišlo je do napake.');saveBtn.disabled=false;saveBtn.textContent=editId?'Shrani spremembe':'Objavi oglas'}}
