@@ -51,7 +51,7 @@ async function load(){
    </section>
    <aside class="card side">
     <div class="seller"><h3>${esc(data.seller_name||'Zasebni prodajalec')}</h3><div class="muted">${esc(data.location||'')} · ${countryName(data.country)}</div><span class="verified">✓ Preverjen profil</span></div>
-    <div class="contactBox"><div class="muted">Cena vozila</div><div class="phone">${money(data.price)}</div><div id="directContacts"></div><button class="btn dark" onclick="startChat()" data-i18n="contactSeller">Pošlji sporočilo</button><button id="favBtn" class="btn soft" onclick="toggleFavorite()" data-i18n="saveAd">Shrani oglas</button><button id="compareBtn" class="btn soft" onclick="toggleCompare()">⇄ Primerjaj</button><button class="btn soft" onclick="navigator.share?navigator.share({title:document.title,url:location.href}):navigator.clipboard.writeText(location.href)" data-i18n="share">Deli oglas</button></div>
+    <div class="contactBox"><div class="muted">Cena vozila</div><div class="phone">${money(data.price)}</div><div id="directContacts"></div><button class="btn dark" onclick="startChat()" data-i18n="contactSeller">Pošlji sporočilo</button><button id="favBtn" class="btn soft" onclick="toggleFavorite()" data-i18n="saveAd">Shrani oglas</button><button id="compareBtn" class="btn soft" onclick="toggleCompare()">⇄ Primerjaj</button><button class="btn soft" onclick="navigator.share?navigator.share({title:document.title,url:location.href}):navigator.clipboard.writeText(location.href)" data-i18n="share">Deli oglas</button><button class="btn soft" style="color:#9b2929" onclick="reportListing()">⚑ Prijavi oglas</button></div>
     <div class="facts"><div class="fact"><span>Status</span><strong>${esc(data.status)}</strong></div><div class="fact"><span>ID oglasa</span><strong>${esc(String(data.id).slice(0,8))}</strong></div><div class="fact"><span>Izpostavljen</span><strong>${data.featured?'Da':'Ne'}</strong></div></div><div id="marketAnalysis" class="analysis"><h3 data-i18n="marketAnalysis">AI tržna analiza</h3><div class="muted">Računam podobne oglase ...</div></div>
    </aside>
  </div>
@@ -70,6 +70,13 @@ function renderDirectContacts(d){
  if(d.show_email&&d.contact_email){html+='<a class="btn soft" style="display:block;text-align:center" href="mailto:'+encodeURIComponent(d.contact_email)+'">✉ '+esc(d.contact_email)+'</a>'}
  if(!html)html='<div class="muted" style="margin:8px 0">Prodajalec ni javno prikazal telefona ali e-pošte.</div>';
  el.innerHTML=html;
+}
+async function reportListing(){
+ const {data:{user}}=await db.auth.getUser();if(!user){window.location.href='login.html?next='+encodeURIComponent(window.location.href);return}
+ const reason=prompt('Zakaj želiš prijaviti ta oglas?');if(!reason||reason.trim().length<3)return;
+ const {error}=await db.from('listing_reports').insert({listing_id:currentListing.id,reporter_id:user.id,reason:reason.trim()});
+ if(error){if(String(error.message).toLowerCase().includes('duplicate'))alert('Ta oglas si že prijavil.');else alert(error.message);return}
+ alert('Hvala. Prijava oglasa je bila zabeležena.');
 }
 async function startChat(){const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return}if(!currentListing?.user_id){alert('To je testni oglas brez uporabniškega prodajalca. Pri oglasih uporabnikov bo sporočanje delovalo neposredno.');return}if(currentListing.user_id===user.id){location.href='account.html';return}
 const {data:existing}=await db.from('conversations').select('id').eq('listing_id',currentListing.id).eq('buyer_id',user.id).eq('seller_id',currentListing.user_id).maybeSingle();
