@@ -13,20 +13,26 @@ main{padding:26px 0 60px}.crumb{font-size:12px;color:var(--muted);margin-bottom:
 <main><div class="wrap"><div class="crumb"><a href="index.html">Vozila</a> / <span id="crumbTitle">Oglas</span></div><div id="app" class="loading">Nalagam oglas ...</div></div></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const db=supabase.createClient('https://esvmfafsqxhcqtuopkap.supabase.co','sb_publishable_04J7SsDJkKSBb_1pi8D1Wg_yL4rrd7Q');
-const id=new URLSearchParams(location.search).get('id');let currentListing=null;
+const id=new URLSearchParams(window.location.search).get('id');let currentListing=null;
+const appEl=document.getElementById('app');
+const crumbTitleEl=document.getElementById('crumbTitle');
+function countryName(c){return ({SI:'Slovenija',HR:'Hrvaška',BA:'Bosna in Hercegovina'})[c]||'Slovenija'}
+function vehicleTypeName(t){return ({car:'Osebni avto',motorcycle:'Motor',van:'Kombi',truck:'Tovornjak',atv:'Štirikolesnik / ATV',camper:'Avtodom',trailer:'Prikolica',commercial:'Gospodarsko vozilo'})[t]||'Osebni avto'}
+function vinStatus(d){return ({not_checked:'Ni preverjen',pending:'Preverjanje v teku',verified:'Preverjen',warning:'Opozorilo',failed:'Napaka preverjanja'})[d?.vin_check_status||'not_checked']||'Ni preverjen'}
+function renderEquipment(eq){if(!eq||typeof eq!=='object'||!Object.keys(eq).length)return '<div class="muted">Prodajalec ni označil dodatne opreme.</div>';return Object.entries(eq).filter(([_,v])=>Array.isArray(v)&&v.length).map(([group,items])=>'<div class="eqCard"><h4>'+esc(group)+'</h4><ul>'+items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('')||'<div class="muted">Prodajalec ni označil dodatne opreme.</div>'}
 const money=v=>new Intl.NumberFormat('sl-SI').format(Number(v||0))+' €';
 const km=v=>new Intl.NumberFormat('sl-SI').format(Number(v||0))+' km';
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function load(){
- if(!id){app.className='card';app.style.padding='30px';app.textContent='Oglas ni bil izbran.';return}
- const {data,error}=await db.from('listings').select('*').eq('id',id).single();
- if(error||!data){app.className='card';app.style.padding='30px';app.textContent='Oglas ne obstaja ali ni več aktiven.';return}
- currentListing=data;document.title=data.title+' — AvtoMarket';crumbTitle.textContent=data.title;
+ if(!id){appEl.className='card';appEl.style.padding='30px';appEl.textContent='Oglas ni bil izbran.';return}
+ const {data,error}=await db.from('listings').select('id,user_id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,body_type,price,location,vin,description,image_urls,seller_name,status,featured,equipment,vin_check_status').eq('id',id).single();
+ if(error||!data){appEl.className='card';appEl.style.padding='30px';appEl.textContent='Oglas ne obstaja ali ni več aktiven.';return}
+ currentListing=data;document.title=data.title+' — AvtoMarket';crumbTitleEl.textContent=data.title;
  const imgs=(data.image_urls&&data.image_urls.length?data.image_urls:['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1400&q=85']);
- app.className='';app.innerHTML=`
+ appEl.className='';appEl.innerHTML=`
  <div class="layout">
    <section>
-    <div class="card gallery"><div id="heroPhoto" class="heroPhoto" style="background-image:url('${imgs[0]}')"></div><div class="thumbs">${imgs.map((u,i)=>`<div class="thumb ${i===0?'active':''}" style="background-image:url('${u}')" onclick="setPhoto('${u}',this)"></div>`).join('')}</div></div>
+    <div class="card gallery"><div id="heroPhoto" class="heroPhoto" style="background-image:url('${imgs[0]}')"></div><div class="thumbs">${imgs.map((u,i)=>`<div loading="lazy" class="thumb ${i===0?'active':''}" style="background-image:url('${u}')" onclick="setPhoto('${u}',this)"></div>`).join('')}</div></div>
     <div class="card info" style="margin-top:16px">
       <div class="topline"><div class="title"><h1>${esc(data.title)}</h1><div class="subtitle">${esc(data.location||'Slovenija')} · objavljeno na AvtoMarket</div></div><div class="price">${money(data.price)}</div></div>
       <div class="specGrid">
@@ -50,10 +56,12 @@ async function load(){
    </aside>
  </div>
  <section class="section"><h2 data-i18n="similar">Podobna vozila</h2><div id="similar" class="similar"></div></section>`;
- loadSimilar(data);syncFavorite();syncCompare();loadMarketAnalysis(data);setTimeout(()=>window.AvtoMarketI18n?.translate(),0);
+ syncCompare();setTimeout(()=>window.AvtoMarketI18n?.translate(),0);
+ const runSecondary=()=>{loadSimilar(data);syncFavorite();loadMarketAnalysis(data)};
+ if('requestIdleCallback' in window)requestIdleCallback(runSecondary,{timeout:700});else setTimeout(runSecondary,80);
 }
-window.setPhoto=(url,el)=>{heroPhoto.style.backgroundImage=`url('${url}')`;document.querySelectorAll('.thumb').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
-async function loadSimilar(cur){const {data}=await db.from('listings').select('*').eq('status','active').neq('id',cur.id).or(`brand.eq.${cur.brand},body_type.eq.${cur.body_type||''}`).limit(3);similar.innerHTML=(data||[]).map(x=>`<a class="sim" href="listing.html?id=${x.id}"><div class="simPhoto" style="background-image:url('${(x.image_urls&&x.image_urls[0])||''}')"></div><div class="simBody"><div class="simTitle">${esc(x.title)}</div><div class="simMeta">${x.year} · ${km(x.mileage)}</div><div class="simPrice">${money(x.price)}</div></div></a>`).join('')||'<div class="muted">Trenutno ni podobnih vozil.</div>'}
+window.setPhoto=(url,el)=>{const hero=document.getElementById('heroPhoto');if(!hero)return;hero.style.backgroundImage=`url('${url}')`;document.querySelectorAll('.thumb').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
+async function loadSimilar(cur){const similarEl=document.getElementById('similar');const {data}=await db.from('listings').select('id,title,year,mileage,price,image_urls').eq('status','active').neq('id',cur.id).or(`brand.eq.${cur.brand},body_type.eq.${cur.body_type||''}`).limit(3);similarEl.innerHTML=(data||[]).map(x=>`<a class="sim" href="listing.html?id=${x.id}"><div class="simPhoto" style="background-image:url('${(x.image_urls&&x.image_urls[0])||''}')"></div><div class="simBody"><div class="simTitle">${esc(x.title)}</div><div class="simMeta">${x.year} · ${km(x.mileage)}</div><div class="simPrice">${money(x.price)}</div></div></a>`).join('')||'<div class="muted">Trenutno ni podobnih vozil.</div>'}
 
 async function startChat(){const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return}if(!currentListing?.user_id){alert('To je testni oglas brez uporabniškega prodajalca. Pri oglasih uporabnikov bo sporočanje delovalo neposredno.');return}if(currentListing.user_id===user.id){location.href='account.html';return}
 const {data:existing}=await db.from('conversations').select('id').eq('listing_id',currentListing.id).eq('buyer_id',user.id).eq('seller_id',currentListing.user_id).maybeSingle();
@@ -63,15 +71,18 @@ function compareIds(){return JSON.parse(localStorage.getItem('compareIds')||'[]'
 function syncCompare(){const b=document.getElementById('compareBtn');if(!b||!currentListing)return;const ids=compareIds();b.textContent=ids.includes(currentListing.id)?'✓ V primerjavi':'⇄ Primerjaj'}
 function toggleCompare(){let ids=compareIds();if(ids.includes(currentListing.id)){ids=ids.filter(x=>x!==currentListing.id)}else{if(ids.length>=3){alert('Primerjaš lahko največ 3 vozila.');return}ids.push(currentListing.id)}localStorage.setItem('compareIds',JSON.stringify(ids));syncCompare();if(ids.length>=2&&confirm('Odpreva primerjavo izbranih vozil?'))location.href='compare.html'}
 async function loadMarketAnalysis(x){
- const own=await db.from('listings').select('price,mileage,year').eq('status','active').eq('country',x.country||'SI').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).neq('id',x.id).limit(100);
- const ext=await db.from('external_market_comps').select('price,mileage,year,source').eq('country',x.country||'SI').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).limit(100);
+ const marketEl=document.getElementById('marketAnalysis');if(!marketEl)return;
+ const [own,ext]=await Promise.all([
+  db.from('listings').select('price,mileage,year').eq('status','active').eq('country',x.country||'SI').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).neq('id',x.id).limit(100),
+  db.from('external_market_comps').select('price,mileage,year,source').eq('country',x.country||'SI').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).limit(100)
+ ]);
  const rows=[...(own.data||[]),...(ext.data||[])].filter(r=>Number(r.price)>0);
- if(rows.length<2){marketAnalysis.innerHTML='<h3>AI tržna analiza</h3><div class="aiText">Za ta model trenutno še ni dovolj primerljivih oglasov za zanesljivo analizo. Ko bo več podatkov ali priklopljen zunanji vir, bo analiza natančnejša.</div>';return}
+ if(rows.length<2){marketEl.innerHTML='<h3>AI tržna analiza</h3><div class="aiText">Za ta model trenutno še ni dovolj primerljivih oglasov za zanesljivo analizo. Ko bo več podatkov ali priklopljen zunanji vir, bo analiza natančnejša.</div>';return}
  const prices=rows.map(r=>Number(r.price)).sort((a,b)=>a-b);const median=prices[Math.floor(prices.length/2)];
  const avgKm=Math.round(rows.reduce((a,r)=>a+Number(r.mileage||0),0)/rows.length);const pct=((Number(x.price)-median)/median)*100;
  const kmDiff=Number(x.mileage||0)-avgKm;let verdict='Cena je blizu mediane primerljivih vozil.';if(pct<=-7)verdict='Cena je opazno pod mediano primerljivih vozil.';else if(pct>=7)verdict='Cena je opazno nad mediano primerljivih vozil.';
- const extCount=(ext.data||[]).length;marketAnalysis.innerHTML='<h3>AI tržna analiza <span class="muted" style="font-size:11px">(beta)</span></h3><div class="aiText">'+verdict+' Vozilo ima '+(kmDiff>0?Math.abs(kmDiff).toLocaleString('sl-SI')+' km več':Math.abs(kmDiff).toLocaleString('sl-SI')+' km manj')+' od povprečja primerljivih oglasov. Analiza temelji na '+rows.length+' primerjavah'+(extCount?' tudi iz zunanjih virov':' znotraj AvtoMarket podatkov')+'.</div><div class="analysisGrid"><div class="metric"><small>Mediana cene</small><strong>'+money(median)+'</strong></div><div class="metric"><small>Povp. kilometri</small><strong>'+km(avgKm)+'</strong></div><div class="metric"><small>Odstopanje cene</small><strong>'+(pct>0?'+':'')+pct.toFixed(1)+' %</strong></div></div>';
+ const extCount=(ext.data||[]).length;marketEl.innerHTML='<h3>AI tržna analiza <span class="muted" style="font-size:11px">(beta)</span></h3><div class="aiText">'+verdict+' Vozilo ima '+(kmDiff>0?Math.abs(kmDiff).toLocaleString('sl-SI')+' km več':Math.abs(kmDiff).toLocaleString('sl-SI')+' km manj')+' od povprečja primerljivih oglasov. Analiza temelji na '+rows.length+' primerjavah'+(extCount?' tudi iz zunanjih virov':' znotraj AvtoMarket podatkov')+'.</div><div class="analysisGrid"><div class="metric"><small>Mediana cene</small><strong>'+money(median)+'</strong></div><div class="metric"><small>Povp. kilometri</small><strong>'+km(avgKm)+'</strong></div><div class="metric"><small>Odstopanje cene</small><strong>'+(pct>0?'+':'')+pct.toFixed(1)+' %</strong></div></div>';
 }
 async function toggleFavorite(){const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return}const {data}=await db.from('favorites').select('listing_id').eq('user_id',user.id).eq('listing_id',currentListing.id).maybeSingle();if(data){await db.from('favorites').delete().eq('user_id',user.id).eq('listing_id',currentListing.id);favBtn.textContent='♡ Shrani oglas'}else{const {error}=await db.from('favorites').insert({user_id:user.id,listing_id:currentListing.id});if(error){alert(error.message);return}favBtn.textContent='♥ Shranjeno'}}
-load();
+load().catch(err=>{console.error(err);appEl.className='card';appEl.style.padding='30px';appEl.innerHTML='<strong>Oglasa trenutno ni mogoče naložiti.</strong><div class="muted" style="margin-top:8px">Osveži stran ali poskusi znova čez trenutek.</div>'});
 </script><script src="i18n.js"></script></body></html>
