@@ -1,0 +1,33 @@
+<!doctype html><html lang="sl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Admin statistika — AvtoMarket</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#111318;--muted:#707784;--line:#e6e9ee;--green:#0f9f83;--dark:#0f1720}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink)}a{text-decoration:none;color:inherit}.wrap{max-width:1180px;margin:auto;padding:0 18px}header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}.nav{height:68px;display:flex;align-items:center;gap:14px}.brand{font-size:22px;font-weight:950}.brand span{color:var(--green)}.sp{flex:1}.btn{border:0;border-radius:11px;padding:11px 14px;font-weight:850;background:#eef1f4;cursor:pointer}.dark{background:var(--dark);color:#fff}main{padding:30px 0 60px}.head{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:20px}.head h1{font-size:34px;margin:0 0 5px}.muted{color:var(--muted);font-size:13px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px}.metric strong{display:block;font-size:29px;margin-top:5px}.section{margin-top:20px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}.section h2{margin:0 0 14px}.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;align-items:end;height:210px;padding-top:20px}.barCol{height:100%;display:flex;flex-direction:column;justify-content:end;gap:6px;text-align:center}.bar{background:var(--green);border-radius:9px 9px 3px 3px;min-height:4px}.barVal{font-size:11px;font-weight:850}.barDay{font-size:10px;color:var(--muted)}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid #eef0f3;font-size:13px}th{color:var(--muted);font-size:11px;text-transform:uppercase}.loading{padding:45px;text-align:center;color:var(--muted)}.error{background:#fff0f0;color:#9b2929;border-radius:12px;padding:14px}
+@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.head{align-items:start;flex-direction:column}.bars{gap:5px}}@media(max-width:480px){.cards{grid-template-columns:1fr 1fr}.metric strong{font-size:24px}.card{padding:13px}}
+</style></head><body><header><div class="wrap nav"><a class="brand" href="index.html">Avto<span>Market</span></a><div class="sp"></div><a class="btn" href="account.html">Moj račun</a><button class="btn dark" onclick="loadStats()">Osveži</button></div></header><main><div class="wrap"><div class="head"><div><h1>Statistika AvtoMarket</h1><div class="muted">Zasebni admin pregled. Obiski se začnejo beležiti od trenutka vklopa analitike.</div></div></div><div id="app" class="loading">Nalagam statistiko ...</div></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+const db=supabase.createClient('https://esvmfafsqxhcqtuopkap.supabase.co','sb_publishable_04J7SsDJkKSBb_1pi8D1Wg_yL4rrd7Q');
+const nf=n=>new Intl.NumberFormat('sl-SI').format(Number(n||0));
+async function loadStats(){
+ const app=document.getElementById('app');app.className='loading';app.textContent='Nalagam statistiko ...';
+ const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return}
+ const {data,error}=await db.rpc('avtomarket_admin_stats');if(error){app.className='error';app.textContent='Ta stran je dovoljena samo administratorju AvtoMarketa.';return}
+ const d=data||{},daily=d.daily||[],top=d.top_listings||[];const max=Math.max(1,...daily.map(x=>Number(x.views||0)));
+ app.className='';app.innerHTML=`
+ <div class="cards">
+  <div class="card metric"><span class="muted">Ogledi danes</span><strong>${nf(d.page_views_today)}</strong></div>
+  <div class="card metric"><span class="muted">Obiskovalci danes</span><strong>${nf(d.unique_visitors_today)}</strong></div>
+  <div class="card metric"><span class="muted">Ogledi / 7 dni</span><strong>${nf(d.page_views_7d)}</strong></div>
+  <div class="card metric"><span class="muted">Obiskovalci / 7 dni</span><strong>${nf(d.unique_visitors_7d)}</strong></div>
+  <div class="card metric"><span class="muted">Registrirani profili</span><strong>${nf(d.profiles_total)}</strong></div>
+  <div class="card metric"><span class="muted">Nove registracije / 7 dni</span><strong>${nf(d.profiles_7d)}</strong></div>
+  <div class="card metric"><span class="muted">Aktivni oglasi</span><strong>${nf(d.listings_active)}</strong></div>
+  <div class="card metric"><span class="muted">Novi oglasi / 7 dni</span><strong>${nf(d.listings_7d)}</strong></div>
+  <div class="card metric"><span class="muted">Ogledi oglasov / 7 dni</span><strong>${nf(d.listing_views_7d)}</strong></div>
+  <div class="card metric"><span class="muted">Kliki telefon / 7 dni</span><strong>${nf(d.phone_clicks_7d)}</strong></div>
+  <div class="card metric"><span class="muted">Kliki e-mail / 7 dni</span><strong>${nf(d.email_clicks_7d)}</strong></div>
+  <div class="card metric"><span class="muted">Sporočila / 7 dni</span><strong>${nf(d.message_clicks_7d)}</strong></div>
+ </div>
+ <section class="section"><h2>Obiski zadnjih 7 dni</h2><div class="bars">${daily.map(x=>`<div class="barCol"><div class="barVal">${nf(x.views)}</div><div class="bar" style="height:${Math.max(4,Math.round(Number(x.views||0)/max*150))}px"></div><div class="barDay">${new Date(x.day).toLocaleDateString('sl-SI',{weekday:'short'})}</div></div>`).join('')}</div></section>
+ <section class="section"><h2>Najbolj gledani oglasi · 30 dni</h2><table><thead><tr><th>Oglas</th><th>Ogledi</th><th></th></tr></thead><tbody>${top.map(x=>`<tr><td>${String(x.title||'Oglas').replace(/[&<>]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[s]))}</td><td><strong>${nf(x.views)}</strong></td><td><a href="listing.html?id=${x.id}">Odpri →</a></td></tr>`).join('')||'<tr><td colspan="3">Še ni zabeleženih ogledov.</td></tr>'}</tbody></table></section>`;
+}
+loadStats();
+</script></body></html>
