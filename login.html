@@ -24,4 +24,4 @@ const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo
 if(data.user){await db.from('profiles').upsert({id:data.user.id,full_name,phone:company_phone||null,account_type,company_name:company_name||null,company_website:company_website||null})}document.getElementById('resendBtn').style.display='block';show('Račun je ustvarjen. Odpri potrditveni mail in klikni povezavo. Po potrditvi te vrne na AvtoMarket.',true)}
 else{const {error}=await db.auth.signInWithPassword({email,password});if(error){show(error.message);return}location.href=next}}
 async function resendConfirmation(){const email=document.getElementById('email').value.trim();if(!email){show('Najprej vnesi e-poštni naslov.');return}const {error}=await db.auth.resend({type:'signup',email,options:{emailRedirectTo:AUTH_REDIRECT}});if(error){show(error.message);return}show('Nov potrditveni mail je poslan. Uporabi zadnji prejeti mail.',true)}
-</script><script src="i18n.js"></script></body></html>
+</script><script src="i18n.js"></script><script src="analytics.js"></script></body></html>
