@@ -120,6 +120,11 @@ let error;if(editId){({error}=await db.from('listings').update(payload).eq('id',
 function updateSellModels(){const models=modelCatalog[brand.value]||[];model.innerHTML=models.map(x=>'<option>'+x+'</option>').join('')+'<option>Drugo</option>'}
 function updateVehicleForm(){
  const t=vehicle_type.value;
+ const previousBrand=brand.value;
+ const brands=brandCatalog[t]||brandCatalog.car;
+ brand.innerHTML=brands.map(x=>'<option>'+x+'</option>').join('');
+ if(brands.includes(previousBrand)) brand.value=previousBrand;
+ updateSellModels();
  const bodyOptions={
   car:['Limuzina','Karavan','SUV','Hatchback','Coupe','Kabriolet'],
   motorcycle:['Naked','Sport','Touring','Enduro','Chopper / Cruiser','Scooter'],
