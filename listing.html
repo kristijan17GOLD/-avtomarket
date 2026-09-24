@@ -109,4 +109,4 @@ async function loadMarketAnalysis(x){
 }
 async function toggleFavorite(){const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return}const {data}=await db.from('favorites').select('listing_id').eq('user_id',user.id).eq('listing_id',currentListing.id).maybeSingle();if(data){await db.from('favorites').delete().eq('user_id',user.id).eq('listing_id',currentListing.id);favBtn.textContent='♡ Shrani oglas'}else{const {error}=await db.from('favorites').insert({user_id:user.id,listing_id:currentListing.id});if(error){alert(error.message);return}favBtn.textContent='♥ Shranjeno'}}
 load().catch(err=>{console.error(err);appEl.className='card';appEl.style.padding='30px';appEl.innerHTML='<strong>Oglasa trenutno ni mogoče naložiti.</strong><div class="muted" style="margin-top:8px">Osveži stran ali poskusi znova čez trenutek.</div>'});
-</script><script src="i18n.js"></script></body></html>
+</script><script src="i18n.js"></script><script src="analytics.js"></script></body></html>
