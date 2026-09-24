@@ -50,7 +50,7 @@ async function load(){
    </aside>
  </div>
  <section class="section"><h2 data-i18n="similar">Podobna vozila</h2><div id="similar" class="similar"></div></section>`;
- loadSimilar(data);syncFavorite();syncCompare();loadMarketAnalysis(data);
+ loadSimilar(data);syncFavorite();syncCompare();loadMarketAnalysis(data);setTimeout(()=>window.AvtoMarketI18n?.translate(),0);
 }
 window.setPhoto=(url,el)=>{heroPhoto.style.backgroundImage=`url('${url}')`;document.querySelectorAll('.thumb').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
 async function loadSimilar(cur){const {data}=await db.from('listings').select('*').eq('status','active').neq('id',cur.id).or(`brand.eq.${cur.brand},body_type.eq.${cur.body_type||''}`).limit(3);similar.innerHTML=(data||[]).map(x=>`<a class="sim" href="listing.html?id=${x.id}"><div class="simPhoto" style="background-image:url('${(x.image_urls&&x.image_urls[0])||''}')"></div><div class="simBody"><div class="simTitle">${esc(x.title)}</div><div class="simMeta">${x.year} · ${km(x.mileage)}</div><div class="simPrice">${money(x.price)}</div></div></a>`).join('')||'<div class="muted">Trenutno ni podobnih vozil.</div>'}
@@ -64,7 +64,7 @@ function syncCompare(){const b=document.getElementById('compareBtn');if(!b||!cur
 function toggleCompare(){let ids=compareIds();if(ids.includes(currentListing.id)){ids=ids.filter(x=>x!==currentListing.id)}else{if(ids.length>=3){alert('Primerjaš lahko največ 3 vozila.');return}ids.push(currentListing.id)}localStorage.setItem('compareIds',JSON.stringify(ids));syncCompare();if(ids.length>=2&&confirm('Odpreva primerjavo izbranih vozil?'))location.href='compare.html'}
 async function loadMarketAnalysis(x){
  const own=await db.from('listings').select('price,mileage,year').eq('status','active').eq('country',x.country||'SI').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).neq('id',x.id).limit(100);
- const ext=await db.from('external_market_comps').select('price,mileage,year,source').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).limit(100);
+ const ext=await db.from('external_market_comps').select('price,mileage,year,source').eq('country',x.country||'SI').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).limit(100);
  const rows=[...(own.data||[]),...(ext.data||[])].filter(r=>Number(r.price)>0);
  if(rows.length<2){marketAnalysis.innerHTML='<h3>AI tržna analiza</h3><div class="aiText">Za ta model trenutno še ni dovolj primerljivih oglasov za zanesljivo analizo. Ko bo več podatkov ali priklopljen zunanji vir, bo analiza natančnejša.</div>';return}
  const prices=rows.map(r=>Number(r.price)).sort((a,b)=>a-b);const median=prices[Math.floor(prices.length/2)];
