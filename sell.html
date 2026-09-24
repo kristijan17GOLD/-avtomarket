@@ -6,8 +6,8 @@ main{padding:36px 0 60px}.head{margin-bottom:24px}.head h1{font-size:38px;letter
 .btn{border:0;border-radius:12px;padding:13px 16px;font-weight:900;cursor:pointer}.primary{background:var(--dark);color:#fff;width:100%;margin-top:16px}.side h3{margin-top:0}.side p{font-size:13px;line-height:1.55;color:var(--muted)}.tick{display:flex;gap:10px;margin:13px 0;font-size:13px}.dot{width:24px;height:24px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--green);font-weight:900;flex:0 0 24px}.msg{margin-top:14px;padding:12px;border-radius:10px;font-size:13px;display:none}.msg.ok{display:block;background:var(--soft);color:#116754}.msg.err{display:block;background:#fff0f0;color:#9b2929}
 @media(max-width:760px){.layout{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.field.full,.sectionTitle,.equipment,.eqTools{grid-column:auto}.head h1{font-size:31px}.side{order:-1}.side .tick{display:none}.eqItems{grid-template-columns:1fr}}</style></head><body>
 <header><div class="wrap nav"><a href="index.html" class="brand">Avto<span>Market</span></a><a class="back" href="account.html">Moj račun</a></div></header>
-<main><div class="wrap"><div class="head"><h1 id="pageTitle">Objavi svoje vozilo</h1><p id="pageSub">Dodaj podatke, opremo in fotografije. Osnovna oprema je že označena.</p></div><div class="layout"><section class="card"><div class="grid">
-<div class="field full"><label>Vrsta vozila</label><select id="vehicle_type" onchange="updateVehicleForm()">
+<main><div class="wrap"><div class="head"><h1 id="pageTitle" data-i18n="publishVehicle">Objavi svoje vozilo</h1><p id="pageSub">Dodaj podatke, opremo in fotografije. Osnovna oprema je že označena.</p></div><div class="layout"><section class="card"><div class="grid">
+<div class="field full"><label data-i18n="vehicleType">Vrsta vozila</label><select id="vehicle_type" onchange="updateVehicleForm()">
 <option value="car">Osebni avto</option>
 <option value="motorcycle">Motor</option>
 <option value="van">Kombi</option>
@@ -17,18 +17,19 @@ main{padding:36px 0 60px}.head{margin-bottom:24px}.head h1{font-size:38px;letter
 <option value="trailer">Prikolica</option>
 <option value="commercial">Drugo gospodarsko vozilo</option>
 </select></div>
-<div class="field"><label>Znamka</label><select id="brand" onchange="updateSellModels()"></select></div><div class="field"><label>Model</label><select id="model"></select></div>
+<div class="field"><label data-i18n="country">Država / trg</label><select id="country"><option value="SI" data-country-label="SI">Slovenija</option><option value="HR" data-country-label="HR">Hrvaška</option><option value="BA" data-country-label="BA">Bosna in Hercegovina</option></select></div>
+<div class="field"><label data-i18n="brand">Znamka</label><select id="brand" onchange="updateSellModels()"></select></div><div class="field"><label data-i18n="model">Model</label><select id="model"></select></div>
 <div class="field"><label>Naslov oglasa</label><input id="title" placeholder="BMW 330e M Sport"></div><div class="field"><label>Letnik</label><input id="year" type="number" placeholder="2022"></div>
 <div class="field"><label>Kilometri</label><input id="mileage" type="number" placeholder="62000"></div><div class="field"><label>Gorivo</label><select id="fuel"><option>Bencin</option><option>Dizel</option><option>Hibrid</option><option>Elektrika</option></select></div>
 <div class="field"><label>Menjalnik</label><select id="transmission"><option>Avtomatik</option><option>Ročni</option></select></div><div class="field"><label>Karoserija</label><select id="body"><option>Limuzina</option><option>Karavan</option><option>SUV</option><option>Hatchback</option><option>Coupe</option><option>Kabriolet</option></select></div>
-<div class="field"><label>Cena (€)</label><input id="price" type="number" placeholder="31990"></div><div class="field"><label>Lokacija</label><input id="location" placeholder="Krško"></div>
+<div class="field"><label>Cena (€)</label><input id="price" type="number" placeholder="31990"></div><div class="field"><label data-i18n="location">Lokacija</label><input id="location" placeholder="Krško"></div>
 <div class="field full"><label>VIN</label><input id="vin" placeholder="17-mestna VIN številka"></div>
 
-<div class="sectionTitle"><h2>Oprema vozila</h2><p>Osnovna, pogosta oprema je predizbrana. Dodaj samo tisto, kar vozilo dejansko ima.</p></div>
+<div class="sectionTitle"><h2 data-i18n="equipment">Oprema vozila</h2><p>Osnovna, pogosta oprema je predizbrana. Dodaj samo tisto, kar vozilo dejansko ima.</p></div>
 <div class="equipment"><div class="eqTools"><button type="button" class="mini" onclick="selectBasics()">Ponastavi na osnovno</button><button type="button" class="mini" onclick="clearEquipment()">Počisti vse</button></div><div id="equipmentGroups"></div></div>
 
-<div class="field full"><label>Fotografije</label><div class="drop"><input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple><small>Do 10 MB na fotografijo. JPG, PNG ali WEBP.</small><div id="preview" class="preview"></div></div></div>
-<div class="field full"><label>Opis vozila</label><textarea id="description" placeholder="Servisna zgodovina, posebnosti, dodatna oprema ..."></textarea></div></div>
+<div class="field full"><label data-i18n="photos">Fotografije</label><div class="drop"><input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple><small>Do 10 MB na fotografijo. JPG, PNG ali WEBP.</small><div id="preview" class="preview"></div></div></div>
+<div class="field full"><label data-i18n="description">Opis vozila</label><textarea id="description" placeholder="Servisna zgodovina, posebnosti, dodatna oprema ..."></textarea></div></div>
 <button id="saveBtn" class="btn primary" onclick="saveListing()">Objavi oglas</button><div id="msg" class="msg"></div></section>
 <aside class="card side"><h3>Oprema brez dolgega tipkanja</h3><p>Prodajalec samo obkljuka opremo, ki jo ima vozilo. Na končnem oglasu se avtomatsko razvrsti v pregledne kategorije.</p><div class="tick"><span class="dot">✓</span><span>Osnovna oprema je že označena.</span></div><div class="tick"><span class="dot">✓</span><span>Dodatno opremo samo doklikaš.</span></div><div class="tick"><span class="dot">✓</span><span>Pri urejanju oglasa ostanejo izbire shranjene.</span></div></aside></div></div></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
@@ -114,7 +115,7 @@ pageTitle.textContent='Uredi oglas';pageSub.textContent='Spremeni podatke, oprem
 brand.value=data.brand||'';model.value=data.model||'';title.value=data.title||'';year.value=data.year||'';mileage.value=data.mileage||'';fuel.value=data.fuel||'Bencin';transmission.value=data.transmission||'Avtomatik';price.value=data.price||'';location.value=data.location||'';vin.value=data.vin||'';description.value=data.description||'';existingImages=data.image_urls||[];renderEquipment(data.equipment||{});
 preview.innerHTML=existingImages.map(u=>'<img src="'+u+'">').join('')}
 async function uploadImages(user){const urls=[...existingImages];for(const file of [...photos.files].slice(0,12)){const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=user.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'-'+safe;const {error}=await db.storage.from('listing-images').upload(path,file,{cacheControl:'3600',upsert:false});if(error)throw error;const {data}=db.storage.from('listing-images').getPublicUrl(path);urls.push(data.publicUrl)}return urls}
-async function saveListing(){const user=await requireUser();if(!user)return;saveBtn.disabled=true;saveBtn.textContent='Shranjujem...';try{const image_urls=await uploadImages(user);const payload={user_id:user.id,vehicle_type:vehicle_type.value,brand:brand.value.trim(),model:model.value.trim(),title:title.value.trim(),year:+year.value,mileage:+mileage.value,fuel:fuel.value,transmission:transmission.value,body_type:body.value,price:+price.value,location:location.value.trim(),vin:vin.value.trim()||null,description:description.value.trim(),equipment:collectEquipment(),image_urls,seller_name:user.user_metadata?.full_name||user.email,status:'active',updated_at:new Date().toISOString()};
+async function saveListing(){const user=await requireUser();if(!user)return;saveBtn.disabled=true;saveBtn.textContent='Shranjujem...';try{const image_urls=await uploadImages(user);const payload={user_id:user.id,country:country.value,vehicle_type:vehicle_type.value,brand:brand.value.trim(),model:model.value.trim(),title:title.value.trim(),year:+year.value,mileage:+mileage.value,fuel:fuel.value,transmission:transmission.value,body_type:body.value,price:+price.value,location:location.value.trim(),vin:vin.value.trim()||null,description:description.value.trim(),equipment:collectEquipment(),image_urls,seller_name:user.user_metadata?.full_name||user.email,status:'active',updated_at:new Date().toISOString()};
 if(!payload.brand||!payload.model||!payload.title||!payload.year||!payload.price)throw new Error('Izpolni vsaj znamko, model, naslov, letnik in ceno.');
 let error;if(editId){({error}=await db.from('listings').update(payload).eq('id',editId).eq('user_id',user.id))}else{({error}=await db.from('listings').insert(payload))}if(error)throw error;show(editId?'Spremembe so shranjene.':'Oglas je objavljen.',true);setTimeout(()=>location.href='account.html',700)}catch(e){show(e.message||'Prišlo je do napake.');saveBtn.disabled=false;saveBtn.textContent=editId?'Shrani spremembe':'Objavi oglas'}}
 function updateSellModels(){const models=modelCatalog[brand.value]||[];model.innerHTML=models.map(x=>'<option>'+x+'</option>').join('')+'<option>Drugo</option>'}
@@ -149,4 +150,4 @@ function updateVehicleForm(){
  if(t==='trailer') transmission.innerHTML='<option>Brez menjalnika</option>';
 }
 renderEquipment();updateVehicleForm();loadEdit();
-</script></body></html>
+</script><script src="i18n.js"></script></body></html>
