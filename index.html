@@ -178,6 +178,7 @@ async function loadCars(){
 }
 let current=[...cars];
 function money(v){return new Intl.NumberFormat('sl-SI').format(v)+' €'}
+function countryLabel(code){return ({SI:'Slovenija',HR:'Hrvaška',BA:'Bosna in Hercegovina'})[code]||'Slovenija'}
 function carCard(c){return `<article class="car" onclick="location.href='listing.html?id=${c.id}'"><div class="photo" style="background-image:url('${c.photo}')"><span class="badge">${c.tag}</span><button class="compareIcon" title="Primerjaj" onclick="event.stopPropagation();toggleCardCompare(c.id,this)">⇄</button><button class="heart" onclick="event.stopPropagation();toggleCardFavorite(c.id,this)">♡</button></div><div class="body"><div class="title">${c.name}</div><div class="seller">${c.seller} · ${countryLabel(c.country)}</div><div class="specs"><span class="spec">${c.year}</span><span class="spec">${new Intl.NumberFormat('sl-SI').format(c.km)} km</span><span class="spec">${c.fuel}</span><span class="spec">${c.gear}</span></div><div class="priceRow"><strong>${money(c.price)}</strong><small>Poglej oglas →</small></div></div></article>`}
 function renderHome(){
  const latest=[...cars].slice(0,5);
