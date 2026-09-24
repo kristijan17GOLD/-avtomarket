@@ -117,7 +117,31 @@ photos.onchange=()=>{preview.innerHTML='';[...photos.files].slice(0,12).forEach(
 async function requireUser(){const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return null}return user}
 async function loadEdit(){if(!editId)return;const user=await requireUser();if(!user)return;const {data,error}=await db.from('listings').select('*').eq('id',editId).eq('user_id',user.id).single();if(error||!data){show('Oglasa ni mogoče odpreti za urejanje.');return}
 pageTitle.textContent='Uredi oglas';pageSub.textContent='Spremeni podatke, opremo ali slike in shrani spremembe.';saveBtn.textContent='Shrani spremembe';
-brand.value=data.brand||'';model.value=data.model||'';title.value=data.title||'';year.value=data.year||'';mileage.value=data.mileage||'';fuel.value=data.fuel||'Bencin';transmission.value=data.transmission||'Avtomatik';price.value=data.price||'';document.getElementById('vehicle_location').value=data.location||'';vin.value=data.vin||'';contact_phone.value=data.contact_phone||'';contact_email.value=data.contact_email||user.email||'';show_phone.checked=data.show_phone!==false;show_email.checked=!!data.show_email;description.value=data.description||'';existingImages=data.image_urls||[];renderEquipment(data.equipment||{});
+
+vehicle_type.value=data.vehicle_type||'car';
+country.value=data.country||'SI';
+updateVehicleForm();
+
+if([...brand.options].some(o=>o.value===data.brand)){brand.value=data.brand||''}
+updateSellModels();
+
+if(data.model&&[...model.options].some(o=>o.value===data.model)){
+  model.value=data.model;
+}else if(data.model){
+  const opt=document.createElement('option');
+  opt.value=data.model;opt.textContent=data.model;
+  model.insertBefore(opt,model.lastElementChild);
+  model.value=data.model;
+}
+
+title.value=data.title||'';year.value=data.year||'';mileage.value=data.mileage||'';
+if([...fuel.options].some(o=>o.value===data.fuel))fuel.value=data.fuel;
+if([...transmission.options].some(o=>o.value===data.transmission))transmission.value=data.transmission;
+if([...body.options].some(o=>o.value===data.body_type))body.value=data.body_type;
+price.value=data.price||'';document.getElementById('vehicle_location').value=data.location||'';vin.value=data.vin||'';
+contact_phone.value=data.contact_phone||'';contact_email.value=data.contact_email||user.email||'';
+show_phone.checked=data.show_phone!==false;show_email.checked=!!data.show_email;
+description.value=data.description||'';existingImages=data.image_urls||[];renderEquipment(data.equipment||{});
 preview.innerHTML=existingImages.map(u=>'<img src="'+u+'">').join('')}
 async function compressImage(file){
  if(!file.type.startsWith('image/')||file.type==='image/gif')return file;
