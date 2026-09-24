@@ -1,0 +1,44 @@
+<!doctype html><html lang="sl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Primerjava vozil — AvtoMarket</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#111318;--muted:#707784;--line:#e6e9ee;--green:#147c68;--dark:#0f1720;--soft:#eaf8f4}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink)}a{text-decoration:none;color:inherit}.wrap{max-width:1220px;margin:auto;padding:0 18px}header{background:#fff;border-bottom:1px solid var(--line)}.nav{height:68px;display:flex;align-items:center;gap:12px}.brand{font-size:22px;font-weight:950}.brand span{color:#0f9f83}.sp{flex:1}.btn{border:0;border-radius:11px;padding:11px 14px;font-weight:850;cursor:pointer}.dark{background:var(--dark);color:#fff}.soft{background:#eef1f4}
+main{padding:32px 0 60px}h1{font-size:36px;letter-spacing:-1px;margin:0 0 8px}.sub{color:var(--muted);margin-bottom:22px}.tableWrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:18px}.compare{min-width:780px;display:grid}.row{display:grid;grid-template-columns:180px repeat(var(--cols),minmax(220px,1fr));border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.cell{padding:15px;border-right:1px solid var(--line)}.cell:last-child{border-right:0}.label{font-weight:900;background:#fafbfc}.hero{height:150px;border-radius:12px;background:#e9edf1 center/cover}.title{font-weight:950;font-size:18px;margin-top:10px}.price{font-size:24px;font-weight:950}.good{color:#147c68;font-weight:900}.warn{color:#a26a00;font-weight:900}.empty{padding:34px;text-align:center;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.remove{margin-top:10px;width:100%;border:0;border-radius:10px;padding:9px;background:#fff0f0;color:#a52727;font-weight:850;cursor:pointer}
+@media(max-width:620px){h1{font-size:30px}.nav .soft{display:none}}</style></head><body>
+<header><div class="wrap nav"><a class="brand" href="index.html">Avto<span>Market</span></a><div class="sp"></div><a class="btn soft" href="favorites.html">Priljubljeni</a><a class="btn dark" href="index.html">Nazaj na vozila</a></div></header>
+<main><div class="wrap"><h1>Primerjaj vozila</h1><div class="sub">Primerjaj do 3 oglase po ceni, kilometrih, letniku, opremi in tržni poziciji.</div><div id="app" class="empty">Nalagam primerjavo ...</div><div class="actions"><button class="btn soft" onclick="clearAll()">Počisti primerjavo</button><a class="btn dark" href="index.html">Dodaj drugo vozilo</a></div></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+const db=supabase.createClient('https://esvmfafsqxhcqtuopkap.supabase.co','sb_publishable_04J7SsDJkKSBb_1pi8D1Wg_yL4rrd7Q');
+const money=v=>new Intl.NumberFormat('sl-SI').format(Number(v||0))+' €';
+const num=v=>new Intl.NumberFormat('sl-SI').format(Number(v||0));
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function ids(){return JSON.parse(localStorage.getItem('compareIds')||'[]').slice(0,3)}
+function setIds(v){localStorage.setItem('compareIds',JSON.stringify(v.slice(0,3)))}
+async function marketPosition(x){
+ const q=db.from('listings').select('price,mileage,year').eq('status','active').eq('vehicle_type',x.vehicle_type||'car').eq('brand',x.brand).eq('model',x.model).gte('year',(x.year||2000)-2).lte('year',(x.year||2000)+2).neq('id',x.id).limit(100);
+ const {data}=await q; const rows=(data||[]).filter(r=>Number(r.price)>0);
+ if(rows.length<2)return {text:'Premalo primerljivih oglasov',cls:''};
+ const sorted=rows.map(r=>Number(r.price)).sort((a,b)=>a-b); const med=sorted[Math.floor(sorted.length/2)]; const pct=((Number(x.price)-med)/med)*100;
+ return {text:(pct>0?'+':'')+pct.toFixed(1)+' % glede na mediano ('+rows.length+' primerjav)',cls:Math.abs(pct)<5?'good':pct>0?'warn':'good'};
+}
+async function load(){
+ const list=ids(); if(!list.length){app.className='empty';app.innerHTML='Še nisi dodal vozil v primerjavo.<br><br><a class="btn dark" href="index.html">Poglej oglase</a>';return}
+ const {data,error}=await db.from('listings').select('*').in('id',list); if(error){app.textContent=error.message;return}
+ const ordered=list.map(id=>(data||[]).find(x=>x.id===id)).filter(Boolean); if(!ordered.length){app.textContent='Izbrani oglasi niso več na voljo.';return}
+ const positions=await Promise.all(ordered.map(marketPosition)); const cols=ordered.length; app.className='tableWrap'; app.style.setProperty('--cols',cols);
+ const cellRow=(label,fn)=>'<div class="row"><div class="cell label">'+label+'</div>'+ordered.map((x,i)=>'<div class="cell">'+fn(x,i)+'</div>').join('')+'</div>';
+ app.innerHTML='<div class="compare" style="--cols:'+cols+'">'+
+ cellRow('',(x)=>'<div class="hero" style="background-image:url(\''+((x.image_urls&&x.image_urls[0])||'')+'\')"></div><div class="title">'+esc(x.title)+'</div><button class="remove" onclick="removeOne(\''+x.id+'\')">Odstrani</button>')+
+ cellRow('Cena',x=>'<div class="price">'+money(x.price)+'</div>')+
+ cellRow('Tržna pozicija',(x,i)=>'<span class="'+positions[i].cls+'">'+esc(positions[i].text)+'</span>')+
+ cellRow('Letnik',x=>esc(x.year))+
+ cellRow('Kilometri',x=>num(x.mileage)+' km')+
+ cellRow('Gorivo',x=>esc(x.fuel))+
+ cellRow('Menjalnik',x=>esc(x.transmission))+
+ cellRow('Karoserija / tip',x=>esc(x.body_type))+
+ cellRow('Lokacija',x=>esc(x.location||'Slovenija'))+
+ cellRow('Oprema',x=>{const eq=x.equipment||{};const n=Object.values(eq).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0);return n+' označenih postavk'})+
+ cellRow('Oglas',x=>'<a class="btn dark" href="listing.html?id='+x.id+'">Odpri oglas</a>')+
+ '</div>';
+}
+function removeOne(id){setIds(ids().filter(x=>x!==id));load()}function clearAll(){setIds([]);load()}load();
+</script></body></html>
