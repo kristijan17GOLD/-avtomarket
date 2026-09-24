@@ -18,4 +18,4 @@ async function openConversation(id){currentId=id;renderConvs();const c=conversat
 async function loadMessages(){if(!currentId)return;const {data,error}=await db.from('messages').select('*').eq('conversation_id',currentId).order('created_at',{ascending:true});if(error){messages.innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}messages.innerHTML=(data||[]).map(m=>`<div class="msg ${m.sender_id===user.id?'me':''}">${esc(m.body)}<small>${time(m.created_at)}</small></div>`).join('')||'<div class="empty">Začni pogovor.</div>';messages.scrollTop=messages.scrollHeight}
 async function sendMessage(){const text=body.value.trim();if(!currentId||!text)return;const {error}=await db.from('messages').insert({conversation_id:currentId,sender_id:user.id,body:text});if(error){alert(error.message);return}body.value='';await db.from('conversations').update({updated_at:new Date().toISOString()}).eq('id',currentId);loadMessages()}
 init();
-</script></body></html>
+</script><script src="i18n.js"></script></body></html>
