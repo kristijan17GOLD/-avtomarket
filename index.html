@@ -47,7 +47,14 @@ footer{padding:34px 0 46px;color:var(--muted);font-size:12px;background:#fff}.fo
 <div class="stats"><div class="stat"><strong id="activeCount">—</strong><span>aktivnih oglasov</span></div><div class="stat"><strong id="sellerCount">—</strong><span>registriranih profilov</span></div><div class="stat"><strong>3</strong><span>regionalni trgi</span></div></div></div>
 <div class="visual"><div class="visualImg"></div><div class="visualBottom"><div><strong>Volkswagen Golf R-Line</strong><small>2021 · DSG · Slovenija</small></div><div><strong>20.900 €</strong><small>primer oglasa</small></div></div></div></div></section>
 
-<section class="section" id="vozila"><div class="wrap"><div class="sectionHead"><div><h2>Vozila, ki izstopajo</h2><p>Čiste kartice. Bistveni podatki takoj.</p></div><div class="chips"><button class="chip active" data-filter="all">Vsa</button><button class="chip" data-filter="Elektrika">Električna</button><button class="chip" data-filter="SUV">SUV</button><button class="chip" data-filter="Avtomatik">Avtomatik</button></div></div><div class="grid" id="grid"></div></div></section>
+<section class="section" id="vozila"><div class="wrap">
+<div class="sectionHead"><div><h2>Najnovejši oglasi</h2><p>Zadnjih 5 objavljenih vozil.</p></div></div>
+<div class="grid" id="latestGrid"></div>
+</div></section>
+<section class="section" id="atraktivni"><div class="wrap">
+<div class="sectionHead"><div><h2>Najbolj atraktivni</h2><p>Izbrani oglasi, ki trenutno najbolj izstopajo.</p></div></div>
+<div class="grid" id="featuredGrid"></div>
+</div></section>
 
 <section class="section" id="zakaj"><div class="wrap"><div class="sectionHead"><div><h2>Manj šuma, več zaupanja</h2><p>Funkcije, zaradi katerih bi se portal razlikoval od klasičnih oglasnikov.</p></div></div><div class="features"><div class="feature"><div class="ico">✓</div><h3>Profili prodajalcev</h3><p>Jasni kontaktni podatki, lastni oglasi in priprava na verificirane profile avtohiš.</p></div><div class="feature"><div class="ico">↕</div><h3>Pametna primerjava</h3><p>Primerjaj ceno, kilometre, opremo in ključne podatke brez odpiranja desetih zavihkov.</p></div><div class="feature"><div class="ico">⌁</div><h3>VIN in zgodovina</h3><p>Pripravljeno za povezavo s ponudniki preverjanja VIN, škod in zgodovine vozila.</p></div></div></div></section>
 
@@ -138,12 +145,12 @@ function updateModelFilter(){
 }
 
 const fallbackCars=[
-{id:1,country:'SI',vehicle_type:'car',brand:'BMW',name:'BMW 330e M Sport',year:2022,km:62000,fuel:'Hibrid',gear:'Avtomatik',body:'Limuzina',price:31990,seller:'Avto Center Ljubljana',tag:'Odlična cena',photo:'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=85',desc:'Lepo ohranjen primerek, redno servisiran, bogata M Sport oprema in avtomatski menjalnik.'},
-{id:2,country:'SI',vehicle_type:'car',brand:'Audi',name:'Audi A4 40 TDI S line',year:2021,km:88500,fuel:'Dizel',gear:'Avtomatik',body:'Karavan',price:27490,seller:'Premium Cars',tag:'Preverjen prodajalec',photo:'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=85',desc:'S line paket, digitalni kokpit, LED žarometi in dokumentirana servisna zgodovina.'},
-{id:3,country:'SI',vehicle_type:'car',brand:'Volkswagen',name:'Volkswagen Golf 1.5 eTSI R-Line',year:2021,km:145000,fuel:'Bencin',gear:'Avtomatik',body:'Hatchback',price:20900,seller:'Avto Posavje',tag:'Svež oglas',photo:'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=85',desc:'R-Line izgled, DSG menjalnik, navigacija in veliko dodatne opreme.'},
-{id:4,country:'SI',vehicle_type:'car',brand:'Mercedes-Benz',name:'Mercedes-Benz GLC 220 d 4Matic',year:2020,km:103000,fuel:'Dizel',gear:'Avtomatik',body:'SUV',price:34900,seller:'Star Motors',tag:'Top ponudba',photo:'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=85',desc:'4Matic pogon, avtomatik, SUV karoserija in zelo urejena notranjost.'},
-{id:5,country:'SI',vehicle_type:'car',brand:'Škoda',name:'Škoda Octavia 2.0 TDI Style',year:2022,km:74000,fuel:'Dizel',gear:'Avtomatik',body:'Karavan',price:24490,seller:'Avtohiša Sever',tag:'1. lastnik',photo:'https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=1200&q=85',desc:'Prostoren družinski karavan z DSG menjalnikom in varčnim dizelskim motorjem.'},
-{id:6,country:'SI',vehicle_type:'car',brand:'BMW',name:'BMW i4 eDrive40',year:2023,km:31000,fuel:'Elektrika',gear:'Avtomatik',body:'Limuzina',price:47900,seller:'E-Mobility Center',tag:'Električno',photo:'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=1200&q=85',desc:'Električni i4 z dolgim dosegom, hitrim polnjenjem in premium opremo.'}
+{id:1,featured:true,country:'SI',vehicle_type:'car',brand:'BMW',name:'BMW 330e M Sport',year:2022,km:62000,fuel:'Hibrid',gear:'Avtomatik',body:'Limuzina',price:31990,seller:'Avto Center Ljubljana',tag:'Odlična cena',photo:'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=85',desc:'Lepo ohranjen primerek, redno servisiran, bogata M Sport oprema in avtomatski menjalnik.'},
+{id:2,featured:true,country:'SI',vehicle_type:'car',brand:'Audi',name:'Audi A4 40 TDI S line',year:2021,km:88500,fuel:'Dizel',gear:'Avtomatik',body:'Karavan',price:27490,seller:'Premium Cars',tag:'Preverjen prodajalec',photo:'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=85',desc:'S line paket, digitalni kokpit, LED žarometi in dokumentirana servisna zgodovina.'},
+{id:3,featured:true,country:'SI',vehicle_type:'car',brand:'Volkswagen',name:'Volkswagen Golf 1.5 eTSI R-Line',year:2021,km:145000,fuel:'Bencin',gear:'Avtomatik',body:'Hatchback',price:20900,seller:'Avto Posavje',tag:'Svež oglas',photo:'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=85',desc:'R-Line izgled, DSG menjalnik, navigacija in veliko dodatne opreme.'},
+{id:4,featured:false,country:'SI',vehicle_type:'car',brand:'Mercedes-Benz',name:'Mercedes-Benz GLC 220 d 4Matic',year:2020,km:103000,fuel:'Dizel',gear:'Avtomatik',body:'SUV',price:34900,seller:'Star Motors',tag:'Top ponudba',photo:'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=85',desc:'4Matic pogon, avtomatik, SUV karoserija in zelo urejena notranjost.'},
+{id:5,featured:false,country:'SI',vehicle_type:'car',brand:'Škoda',name:'Škoda Octavia 2.0 TDI Style',year:2022,km:74000,fuel:'Dizel',gear:'Avtomatik',body:'Karavan',price:24490,seller:'Avtohiša Sever',tag:'1. lastnik',photo:'https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=1200&q=85',desc:'Prostoren družinski karavan z DSG menjalnikom in varčnim dizelskim motorjem.'},
+{id:6,featured:true,country:'SI',vehicle_type:'car',brand:'BMW',name:'BMW i4 eDrive40',year:2023,km:31000,fuel:'Elektrika',gear:'Avtomatik',body:'Limuzina',price:47900,seller:'E-Mobility Center',tag:'Električno',photo:'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=1200&q=85',desc:'Električni i4 z dolgim dosegom, hitrim polnjenjem in premium opremo.'}
 ];
 let cars=[...fallbackCars];
 async function loadStats(){
@@ -162,16 +169,26 @@ async function loadCars(){
   cars=data.map((r,i)=>({
     id:r.id,country:r.country||'SI',vehicle_type:r.vehicle_type||'car',brand:r.brand,name:r.title,year:r.year,km:r.mileage,fuel:r.fuel,gear:r.transmission,
     body:r.body_type||'',price:Number(r.price),seller:r.seller_name||'Zasebni prodajalec',
-    tag:r.featured?'Izpostavljeno':'Aktiven oglas',
+    featured:!!r.featured,tag:r.featured?'Izpostavljeno':'Svež oglas',
     photo:(r.image_urls&&r.image_urls[0])||fallbackCars[i%fallbackCars.length].photo,
     desc:r.description||'Brez dodatnega opisa.'
   }));
-  current=[...cars];render();
+  current=[...cars];renderHome();
   }catch(err){console.error('loadCars failed',err);render();}
 }
 let current=[...cars];
 function money(v){return new Intl.NumberFormat('sl-SI').format(v)+' €'}
-function render(list=current){document.getElementById('grid').innerHTML=list.map(c=>`<article class="car" onclick="location.href='listing.html?id=${c.id}'"><div class="photo" style="background-image:url('${c.photo}')"><span class="badge">${c.tag}</span><button class="compareIcon" title="Primerjaj" onclick="event.stopPropagation();toggleCardCompare(c.id,this)">⇄</button><button class="heart" onclick="event.stopPropagation();toggleCardFavorite(c.id,this)">♡</button></div><div class="body"><div class="title">${c.name}</div><div class="seller">${c.seller} · ${countryLabel(c.country)}</div><div class="specs"><span class="spec">${c.year}</span><span class="spec">${new Intl.NumberFormat('sl-SI').format(c.km)} km</span><span class="spec">${c.fuel}</span><span class="spec">${c.gear}</span></div><div class="priceRow"><strong>${money(c.price)}</strong><small>Poglej oglas →</small></div></div></article>`).join('')||'<p>Za izbrane filtre ni vozil.</p>'}
+function carCard(c){return `<article class="car" onclick="location.href='listing.html?id=${c.id}'"><div class="photo" style="background-image:url('${c.photo}')"><span class="badge">${c.tag}</span><button class="compareIcon" title="Primerjaj" onclick="event.stopPropagation();toggleCardCompare(c.id,this)">⇄</button><button class="heart" onclick="event.stopPropagation();toggleCardFavorite(c.id,this)">♡</button></div><div class="body"><div class="title">${c.name}</div><div class="seller">${c.seller} · ${countryLabel(c.country)}</div><div class="specs"><span class="spec">${c.year}</span><span class="spec">${new Intl.NumberFormat('sl-SI').format(c.km)} km</span><span class="spec">${c.fuel}</span><span class="spec">${c.gear}</span></div><div class="priceRow"><strong>${money(c.price)}</strong><small>Poglej oglas →</small></div></div></article>`}
+function renderHome(){
+ const latest=[...cars].slice(0,5);
+ const featured=[...cars].sort((a,b)=>(Number(b.featured)-Number(a.featured))||(b.price-a.price)).slice(0,5);
+ const lg=$('latestGrid'),fg=$('featuredGrid');
+ if(lg)lg.innerHTML=latest.map(carCard).join('')||'<p>Trenutno še ni oglasov.</p>';
+ if(fg)fg.innerHTML=featured.map(carCard).join('')||'<p>Trenutno še ni oglasov.</p>';
+}
+function render(list=current){
+ const target=$('latestGrid');if(target)target.innerHTML=list.map(carCard).join('')||'<p>Za izbrane filtre ni vozil.</p>';
+}
 function applyFilters(){
  const country=$('marketCountry')?.value||'';
  const vt=$('vehicleType')?.value||'';
@@ -252,7 +269,7 @@ function closeDetail(){document.getElementById('drawer').classList.remove('open'
 const drawerEl=$('drawer');if(drawerEl)drawerEl.onclick=e=>{if(e.target.id==='drawer')closeDetail()};
 restoreMarketChoice();
 updateBrandFilter();
-render();
+renderHome();
 loadCars();
 loadStats().catch?.(()=>{});
 </script>
