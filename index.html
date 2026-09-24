@@ -134,7 +134,9 @@ function updateBrandFilter(){
  const brands=vt?(brandCatalog[vt]||[]):[...new Set(Object.values(brandCatalog).flat())].sort((a,b)=>a.localeCompare(b,'sl'));
  const brandEl=$('brand'); if(!brandEl)return;
  const previous=brandEl.value;
- brandEl.innerHTML='<option>Vse znamke</option>'+brands.map(x=>'<option>'+x+'</option>').join('');
+ const popular=['Audi','BMW','Volkswagen','Renault'].filter(x=>brands.includes(x));
+ const rest=brands.filter(x=>!popular.includes(x));
+ brandEl.innerHTML='<option>Vse znamke</option>'+(popular.length?'<optgroup label="Najbolj priljubljene">'+popular.map(x=>'<option>'+x+'</option>').join('')+'</optgroup>':'')+'<optgroup label="Vse znamke">'+rest.map(x=>'<option>'+x+'</option>').join('')+'</optgroup>';
  if(brands.includes(previous))brandEl.value=previous;
  updateModelFilter();
 }
