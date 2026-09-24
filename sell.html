@@ -163,7 +163,9 @@ function updateVehicleForm(){
  const t=vehicle_type.value;
  const previousBrand=brand.value;
  const brands=brandCatalog[t]||brandCatalog.car;
- brand.innerHTML=brands.map(x=>'<option>'+x+'</option>').join('');
+ const popular=t==='car'?['Audi','BMW','Volkswagen','Renault'].filter(x=>brands.includes(x)):[];
+ const rest=brands.filter(x=>!popular.includes(x));
+ brand.innerHTML=(popular.length?'<optgroup label="Najbolj priljubljene">'+popular.map(x=>'<option>'+x+'</option>').join('')+'</optgroup>':'')+'<optgroup label="Vse znamke">'+rest.map(x=>'<option>'+x+'</option>').join('')+'</optgroup>';
  if(brands.includes(previousBrand)) brand.value=previousBrand;
  updateSellModels();
  const bodyOptions={
