@@ -1,7 +1,7 @@
 (()=> {
 const LANG_KEY='am_language';
 const dictionaries={
-sl:{language:'Jezik',market:'Trg',slovenia:'Slovenija',croatia:'Hrvaška',bosnia:'Bosna in Hercegovina',
+sl:{language:'Jezik',market:'Trg',allMarkets:'Vsi trgi',slovenia:'Slovenija',croatia:'Hrvaška',bosnia:'Bosna in Hercegovina',
 vehicles:'Vozila',sell:'Prodaj vozilo',dealers:'Avtohiše',account:'Moj račun',publish:'+ Objavi vozilo',
 vehicleType:'Vrsta vozila',brand:'Znamka',model:'Model',priceTo:'Cena do',yearFrom:'Letnik od',search:'Poišči',
 allVehicles:'Vsa vozila',allBrands:'Vse znamke',allModels:'Vsi modeli',noLimit:'Ni omejitve',
@@ -11,7 +11,7 @@ publishVehicle:'Objavi svoje vozilo',equipment:'Oprema vozila',description:'Opis
 seller:'Prodajalec',contactSeller:'Kontaktiraj prodajalca',saveAd:'Shrani oglas',share:'Deli oglas',
 marketAnalysis:'AI tržna analiza',similar:'Podobna vozila',login:'Prijava',registration:'Registracija',
 myAds:'Moji oglasi',newAd:'+ Nov oglas',logout:'Odjava'},
-hr:{language:'Jezik',market:'Tržište',slovenia:'Slovenija',croatia:'Hrvatska',bosnia:'Bosna i Hercegovina',
+hr:{language:'Jezik',market:'Tržište',allMarkets:'Sva tržišta',slovenia:'Slovenija',croatia:'Hrvatska',bosnia:'Bosna i Hercegovina',
 vehicles:'Vozila',sell:'Prodaj vozilo',dealers:'Auto kuće',account:'Moj račun',publish:'+ Objavi vozilo',
 vehicleType:'Vrsta vozila',brand:'Marka',model:'Model',priceTo:'Cijena do',yearFrom:'Godište od',search:'Pretraži',
 allVehicles:'Sva vozila',allBrands:'Sve marke',allModels:'Svi modeli',noLimit:'Bez ograničenja',
@@ -21,7 +21,7 @@ publishVehicle:'Objavi svoje vozilo',equipment:'Oprema vozila',description:'Opis
 seller:'Prodavatelj',contactSeller:'Kontaktiraj prodavatelja',saveAd:'Spremi oglas',share:'Podijeli oglas',
 marketAnalysis:'AI analiza tržišta',similar:'Slična vozila',login:'Prijava',registration:'Registracija',
 myAds:'Moji oglasi',newAd:'+ Novi oglas',logout:'Odjava'},
-sr:{language:'Jezik',market:'Tržište',slovenia:'Slovenija',croatia:'Hrvatska',bosnia:'Bosna i Hercegovina',
+sr:{language:'Jezik',market:'Tržište',allMarkets:'Sva tržišta',slovenia:'Slovenija',croatia:'Hrvatska',bosnia:'Bosna i Hercegovina',
 vehicles:'Vozila',sell:'Prodaj vozilo',dealers:'Auto-kuće',account:'Moj nalog',publish:'+ Objavi vozilo',
 vehicleType:'Vrsta vozila',brand:'Marka',model:'Model',priceTo:'Cena do',yearFrom:'Godište od',search:'Pretraži',
 allVehicles:'Sva vozila',allBrands:'Sve marke',allModels:'Svi modeli',noLimit:'Bez ograničenja',
@@ -31,7 +31,7 @@ publishVehicle:'Objavi svoje vozilo',equipment:'Oprema vozila',description:'Opis
 seller:'Prodavac',contactSeller:'Kontaktiraj prodavca',saveAd:'Sačuvaj oglas',share:'Podeli oglas',
 marketAnalysis:'AI analiza tržišta',similar:'Slična vozila',login:'Prijava',registration:'Registracija',
 myAds:'Moji oglasi',newAd:'+ Novi oglas',logout:'Odjava'},
-bs:{language:'Jezik',market:'Tržište',slovenia:'Slovenija',croatia:'Hrvatska',bosnia:'Bosna i Hercegovina',
+bs:{language:'Jezik',market:'Tržište',allMarkets:'Sva tržišta',slovenia:'Slovenija',croatia:'Hrvatska',bosnia:'Bosna i Hercegovina',
 vehicles:'Vozila',sell:'Prodaj vozilo',dealers:'Auto kuće',account:'Moj račun',publish:'+ Objavi vozilo',
 vehicleType:'Vrsta vozila',brand:'Marka',model:'Model',priceTo:'Cijena do',yearFrom:'Godište od',search:'Pretraži',
 allVehicles:'Sva vozila',allBrands:'Sve marke',allModels:'Svi modeli',noLimit:'Bez ograničenja',
@@ -49,6 +49,12 @@ function translate(){
  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(k)el.textContent=t(k)});
  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{const k=el.dataset.i18nPlaceholder;if(k)el.placeholder=t(k)});
  document.querySelectorAll('[data-country-label]').forEach(el=>{const code=el.dataset.countryLabel;el.textContent=code==='SI'?t('slovenia'):code==='HR'?t('croatia'):t('bosnia')});
+ const phraseMap={};
+ Object.entries(dictionaries).forEach(([lng,dict])=>Object.entries(dict).forEach(([k,v])=>phraseMap[v]=k));
+ const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+ const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+ nodes.forEach(n=>{const raw=n.nodeValue,trim=raw.trim();if(!trim||!phraseMap[trim])return;const lead=raw.match(/^\s*/)?.[0]||'',trail=raw.match(/\s*$/)?.[0]||'';n.nodeValue=lead+t(phraseMap[trim])+trail});
+ document.querySelectorAll('input[placeholder]').forEach(el=>{const k=phraseMap[el.placeholder];if(k)el.placeholder=t(k)});
  const sel=document.getElementById('amLanguage');if(sel)sel.value=lang();
 }
 function inject(){
