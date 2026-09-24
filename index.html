@@ -121,7 +121,7 @@ const fallbackCars=[
 ];
 let cars=[...fallbackCars];
 async function loadCars(){
-  const {data,error}=await db.from('listings').select('*').eq('status','active').order('created_at',{ascending:false});
+  const {data,error}=await db.from('listings').select('id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,body_type,price,image_urls,seller_name,featured,description').eq('status','active').order('created_at',{ascending:false}).limit(60);
   if(error||!data||!data.length){render();return}
   cars=data.map((r,i)=>({
     id:r.id,country:r.country||'SI',vehicle_type:r.vehicle_type||'car',brand:r.brand,name:r.title,year:r.year,km:r.mileage,fuel:r.fuel,gear:r.transmission,
