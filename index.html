@@ -39,7 +39,7 @@ footer{padding:34px 0 46px;color:var(--muted);font-size:12px;background:#fff}.fo
 <div class="advanced">
  <div class="field"><label data-i18n="fuel">Gorivo</label><select id="fuelFilter"><option value="">Vsa</option><option>Bencin</option><option>Dizel</option><option>Hibrid</option><option>Elektrika</option></select></div>
  <div class="field"><label data-i18n="gearbox">Menjalnik</label><select id="gearFilter"><option value="">Vsi</option><option>Avtomatik</option><option>Ročni</option></select></div>
- <div class="field"><label data-i18n="body">Karoserija</label><select id="bodyFilter"><option value="">Vse</option><option>SUV</option><option>Limuzina</option><option>Karavan</option><option>Hatchback</option><option>Coupe</option></select></div>
+ <div class="field"><label>Karoserija / podvrsta</label><select id="bodyFilter"><option value="">Vse</option></select></div>
  <div class="field"><label data-i18n="maxKm">Največ km</label><select id="kmFilter"><option value="9999999">Ni omejitve</option><option value="50000">50.000 km</option><option value="100000">100.000 km</option><option value="150000">150.000 km</option><option value="200000">200.000 km</option></select></div>
 </div>
 <div class="aiSearch"><div class="aiSearchTop"><span style="font-weight:950">✦ AI iskanje</span><input id="aiQuery" placeholder="npr. Audi ali BMW do 30.000 €, dizel, avtomatik, od 2020"><button onclick="aiFilter()">Najdi</button></div><div class="aiHint">Opiši vozilo po svoje – sistem bo sam nastavil filtre.</div></div>
@@ -129,8 +129,27 @@ const modelCatalog={
 'Polaris':['Sportsman','Scrambler','RZR','Ranger'],
 'BRP Can-Am':['Outlander','Renegade','Maverick','Defender','Spyder','Ryker']
 };
+function updateBodyFilter(){
+ const vt=$('vehicleType')?.value||'';
+ const map={
+  '':['SUV','Limuzina','Karavan','Hatchback','Coupe','Kabriolet','Naked','Sport','Touring','Enduro','Cross / Motocross','Supermoto','Skuter','Moped','Chopper / Cruiser','Tricikel / 3-kolesnik','Furgon','Potniški kombi','Vlačilec','ATV','UTV','Quad','Alkoven','Integriran','Polintegriran','Campervan'],
+  car:['SUV','Limuzina','Karavan','Hatchback','Coupe','Kabriolet'],
+  motorcycle:['Naked','Sport','Touring','Enduro','Cross / Motocross','Supermoto','Skuter','Moped','Chopper / Cruiser','Tricikel / 3-kolesnik'],
+  van:['Furgon','Potniški kombi','Dvojna kabina','Hladilnik'],
+  truck:['Vlačilec','Kiper','Tovorni','Cisterna','Avtovleka'],
+  atv:['ATV','UTV','Quad'],
+  camper:['Alkoven','Integriran','Polintegriran','Campervan'],
+  trailer:['Tovorna prikolica','Avto prikolica','Prikolica za plovilo','Bivalna prikolica'],
+  commercial:['Delovni stroj','Specialno vozilo','Drugo']
+ };
+ const el=$('bodyFilter');if(!el)return;
+ const prev=el.value;const opts=map[vt]||map[''];
+ el.innerHTML='<option value="">Vse</option>'+opts.map(x=>'<option>'+x+'</option>').join('');
+ if(opts.includes(prev))el.value=prev;
+}
 function updateBrandFilter(){
  const vt=$('vehicleType')?.value||'';
+ updateBodyFilter();
  const brands=vt?(brandCatalog[vt]||[]):[...new Set(Object.values(brandCatalog).flat())].sort((a,b)=>a.localeCompare(b,'sl'));
  const brandEl=$('brand'); if(!brandEl)return;
  const previous=brandEl.value;
@@ -231,7 +250,15 @@ function aiFilter(){
  if(q.includes('avtomatik')||q.includes('dsg'))gearEl.value='Avtomatik';
  if(q.includes('ročni')||q.includes('rocni'))gearEl.value='Ročni';
  if(q.includes('dizel'))fuelEl.value='Dizel';else if(q.includes('hibrid'))fuelEl.value='Hibrid';else if(q.includes('elektr'))fuelEl.value='Elektrika';else if(q.includes('bencin'))fuelEl.value='Bencin';
- if(q.includes('suv'))bodyEl.value='SUV';else if(q.includes('karavan'))bodyEl.value='Karavan';else if(q.includes('limuz'))bodyEl.value='Limuzina';
+ if(q.includes('suv'))bodyEl.value='SUV';
+ else if(q.includes('karavan'))bodyEl.value='Karavan';
+ else if(q.includes('limuz'))bodyEl.value='Limuzina';
+ else if(q.includes('skuter')||q.includes('scooter'))bodyEl.value='Skuter';
+ else if(q.includes('motocross')||q.includes('motokros')||q.includes('kros')||q.includes('cross'))bodyEl.value='Cross / Motocross';
+ else if(q.includes('enduro'))bodyEl.value='Enduro';
+ else if(q.includes('supermoto'))bodyEl.value='Supermoto';
+ else if(q.includes('moped'))bodyEl.value='Moped';
+ else if(q.includes('tricikel')||q.includes('3 koles')||q.includes('trikoles'))bodyEl.value='Tricikel / 3-kolesnik';
  const priceMatch=q.match(/(?:do|max|največ|najvec)\s*(\d{2,6})\s*(?:€|eur|tisoč|tisoc|k)?/);
  if(priceMatch&&priceEl){let v=+priceMatch[1];if(v<1000&&(q.includes('tisoč')||q.includes('tisoc')||q.includes('k')))v*=1000;priceEl.value=String([15000,25000,35000,50000].find(x=>x>=v)||999999)}
  const yearMatch=q.match(/(?:od|po)\s*(20\d{2})/);if(yearMatch&&yearEl){const yy=+yearMatch[1];yearEl.value=String([2024,2022,2020,2018].find(x=>x<=yy)||0)}
