@@ -34,7 +34,7 @@ async function load(){
        <div class="spec"><small>Kilometri</small><strong>${km(data.mileage)}</strong></div>
        <div class="spec"><small>Gorivo</small><strong>${esc(data.fuel||'-')}</strong></div>
        <div class="spec"><small>Menjalnik</small><strong>${esc(data.transmission||'-')}</strong></div>
-       <div class="spec"><small>Karoserija</small><strong>${esc(data.body_type||'-')}</strong></div>
+       <div class="spec"><small>Vrsta vozila</small><strong>${vehicleTypeName(data.vehicle_type)}</strong></div><div class="spec"><small>Karoserija / tip</small><strong>${esc(data.body_type||'-')}</strong></div>
        <div class="spec"><small>Znamka</small><strong>${esc(data.brand||'-')}</strong></div>
        <div class="spec"><small>Model</small><strong>${esc(data.model||'-')}</strong></div>
        <div class="spec"><small>VIN</small><strong>${data.vin?esc(data.vin.slice(0,4)+'••••••••'+data.vin.slice(-4)):'Ni naveden'}</strong></div>
