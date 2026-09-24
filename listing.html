@@ -25,7 +25,7 @@ const km=v=>new Intl.NumberFormat('sl-SI').format(Number(v||0))+' km';
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function load(){
  if(!id){appEl.className='card';appEl.style.padding='30px';appEl.textContent='Oglas ni bil izbran.';return}
- const {data,error}=await db.from('listings').select('id,user_id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,body_type,price,location,vin,description,image_urls,seller_name,status,featured,equipment,vin_check_status').eq('id',id).single();
+ const {data,error}=await db.from('listings').select('id,user_id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,body_type,price,location,vin,description,image_urls,seller_name,status,featured,equipment,vin_check_status,contact_phone,contact_email,show_phone,show_email').eq('id',id).single();
  if(error||!data){appEl.className='card';appEl.style.padding='30px';appEl.textContent='Oglas ne obstaja ali ni več aktiven.';return}
  currentListing=data;document.title=data.title+' — AvtoMarket';crumbTitleEl.textContent=data.title;
  const imgs=(data.image_urls&&data.image_urls.length?data.image_urls:['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1400&q=85']);
@@ -51,18 +51,26 @@ async function load(){
    </section>
    <aside class="card side">
     <div class="seller"><h3>${esc(data.seller_name||'Zasebni prodajalec')}</h3><div class="muted">${esc(data.location||'')} · ${countryName(data.country)}</div><span class="verified">✓ Preverjen profil</span></div>
-    <div class="contactBox"><div class="muted">Cena vozila</div><div class="phone">${money(data.price)}</div><div class="muted">Za kontakt odpri prijavljen račun ali stopi v stik s prodajalcem.</div><button class="btn dark" onclick="startChat()" data-i18n="contactSeller">Kontaktiraj prodajalca</button><button id="favBtn" class="btn soft" onclick="toggleFavorite()" data-i18n="saveAd">Shrani oglas</button><button id="compareBtn" class="btn soft" onclick="toggleCompare()">⇄ Primerjaj</button><button class="btn soft" onclick="navigator.share?navigator.share({title:document.title,url:location.href}):navigator.clipboard.writeText(location.href)" data-i18n="share">Deli oglas</button></div>
+    <div class="contactBox"><div class="muted">Cena vozila</div><div class="phone">${money(data.price)}</div><div id="directContacts"></div><button class="btn dark" onclick="startChat()" data-i18n="contactSeller">Pošlji sporočilo</button><button id="favBtn" class="btn soft" onclick="toggleFavorite()" data-i18n="saveAd">Shrani oglas</button><button id="compareBtn" class="btn soft" onclick="toggleCompare()">⇄ Primerjaj</button><button class="btn soft" onclick="navigator.share?navigator.share({title:document.title,url:location.href}):navigator.clipboard.writeText(location.href)" data-i18n="share">Deli oglas</button></div>
     <div class="facts"><div class="fact"><span>Status</span><strong>${esc(data.status)}</strong></div><div class="fact"><span>ID oglasa</span><strong>${esc(String(data.id).slice(0,8))}</strong></div><div class="fact"><span>Izpostavljen</span><strong>${data.featured?'Da':'Ne'}</strong></div></div><div id="marketAnalysis" class="analysis"><h3 data-i18n="marketAnalysis">AI tržna analiza</h3><div class="muted">Računam podobne oglase ...</div></div>
    </aside>
  </div>
  <section class="section"><h2 data-i18n="similar">Podobna vozila</h2><div id="similar" class="similar"></div></section>`;
- syncCompare();setTimeout(()=>window.AvtoMarketI18n?.translate(),0);
+ syncCompare();renderDirectContacts(data);setTimeout(()=>window.AvtoMarketI18n?.translate(),0);
  const runSecondary=()=>{loadSimilar(data);syncFavorite();loadMarketAnalysis(data)};
  if('requestIdleCallback' in window)requestIdleCallback(runSecondary,{timeout:700});else setTimeout(runSecondary,80);
 }
 window.setPhoto=(url,el)=>{const hero=document.getElementById('heroPhoto');if(!hero)return;hero.style.backgroundImage=`url('${url}')`;document.querySelectorAll('.thumb').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
 async function loadSimilar(cur){const similarEl=document.getElementById('similar');const {data}=await db.from('listings').select('id,title,year,mileage,price,image_urls').eq('status','active').neq('id',cur.id).or(`brand.eq.${cur.brand},body_type.eq.${cur.body_type||''}`).limit(3);similarEl.innerHTML=(data||[]).map(x=>`<a class="sim" href="listing.html?id=${x.id}"><div class="simPhoto" style="background-image:url('${(x.image_urls&&x.image_urls[0])||''}')"></div><div class="simBody"><div class="simTitle">${esc(x.title)}</div><div class="simMeta">${x.year} · ${km(x.mileage)}</div><div class="simPrice">${money(x.price)}</div></div></a>`).join('')||'<div class="muted">Trenutno ni podobnih vozil.</div>'}
 
+function renderDirectContacts(d){
+ const el=document.getElementById('directContacts');if(!el)return;
+ let html='';
+ if(d.show_phone&&d.contact_phone){const tel=String(d.contact_phone).replace(/[^+\d]/g,'');html+='<a class="btn dark" style="display:block;text-align:center" href="tel:'+tel+'">☎ Pokliči '+esc(d.contact_phone)+'</a>'}
+ if(d.show_email&&d.contact_email){html+='<a class="btn soft" style="display:block;text-align:center" href="mailto:'+encodeURIComponent(d.contact_email)+'">✉ '+esc(d.contact_email)+'</a>'}
+ if(!html)html='<div class="muted" style="margin:8px 0">Prodajalec ni javno prikazal telefona ali e-pošte.</div>';
+ el.innerHTML=html;
+}
 async function startChat(){const {data:{user}}=await db.auth.getUser();if(!user){location.href='login.html?next='+encodeURIComponent(location.href);return}if(!currentListing?.user_id){alert('To je testni oglas brez uporabniškega prodajalca. Pri oglasih uporabnikov bo sporočanje delovalo neposredno.');return}if(currentListing.user_id===user.id){location.href='account.html';return}
 const {data:existing}=await db.from('conversations').select('id').eq('listing_id',currentListing.id).eq('buyer_id',user.id).eq('seller_id',currentListing.user_id).maybeSingle();
 let cid=existing?.id;if(!cid){const {data:newc,error}=await db.from('conversations').insert({listing_id:currentListing.id,buyer_id:user.id,seller_id:currentListing.user_id}).select('id').single();if(error){alert(error.message);return}cid=newc.id}location.href='messages.html?conversation='+cid}
