@@ -91,7 +91,7 @@
     "price": 37990,
     "fuel": "Dizel",
     "transmission": "Avtomatik",
-    "url": "https://www.avtoo.si/vozilo/BMW_X5_xDrive30d/1494",
+    "url": "https://www.avtoo.si/vozilo/BMW_X5_xDrive30d_M_Sport/1494",
     "source": "Avtoo.si",
     "image_url": null
   },
@@ -110,27 +110,13 @@
     "image_url": null
   },
   {
-    "id": "avtoo-1507",
-    "brand": "Audi",
-    "model": "Q5 Sportback",
-    "title": "Audi Q5 Sportback 40 TDI quattro Advanced",
-    "year": 2022,
-    "mileage": 110500,
-    "price": 33990,
-    "fuel": "Dizel",
-    "transmission": "Avtomatik",
-    "url": "https://www.avtoo.si/vozilo/Audi_Q5_Sportback_40_TDI_quattro_Advanced/1507",
-    "source": "Avtoo.si",
-    "image_url": null
-  },
-  {
     "id": "avtoo-1451",
     "brand": "Volkswagen",
     "model": "Golf GTI",
     "title": "Volkswagen Golf GTI",
     "year": 2024,
     "mileage": 27000,
-    "price": 26990,
+    "price": 25990,
     "fuel": "Bencin",
     "transmission": "Ročni",
     "url": "https://www.avtoo.si/vozilo/Volkswagen_Golf_GTI/1451",
