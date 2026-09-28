@@ -1,0 +1,17 @@
+[
+  {
+    "external_id":"dealer-123",
+    "source_name":"Example dealer",
+    "source_url":"https://example.com/vehicle/123",
+    "brand":"Volkswagen",
+    "model":"Golf",
+    "title":"Volkswagen Golf 1.5 TSI",
+    "year":2022,
+    "mileage":45000,
+    "fuel":"Bencin",
+    "transmission":"Avtomatik",
+    "price":23990,
+    "location":"Slovenija",
+    "image_urls":[]
+  }
+]
