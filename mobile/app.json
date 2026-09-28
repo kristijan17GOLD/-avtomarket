@@ -1,0 +1,1 @@
+{"expo":{"name":"AvtoMarket","slug":"avtomarket","scheme":"avtomarket","version":"1.0.0","orientation":"portrait","userInterfaceStyle":"light","ios":{"supportsTablet":true,"bundleIdentifier":"si.avtomarket.app"},"android":{"package":"si.avtomarket.app"},"plugins":["expo-router"]}}
