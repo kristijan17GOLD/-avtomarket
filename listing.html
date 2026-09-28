@@ -25,14 +25,14 @@ const km=v=>new Intl.NumberFormat('sl-SI').format(Number(v||0))+' km';
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function load(){
  if(!id){appEl.className='card';appEl.style.padding='30px';appEl.textContent='Oglas ni bil izbran.';return}
- const {data,error}=await db.from('listings').select('id,user_id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,body_type,price,location,vin,description,image_urls,seller_name,status,featured,equipment,vin_check_status,contact_phone,contact_email,show_phone,show_email').eq('id',id).single();
+ const {data,error}=await db.from('listings').select('id,user_id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,body_type,price,location,vin,description,image_urls,seller_name,status,featured,equipment,vin_check_status,contact_phone,contact_email,show_phone,show_email').eq('id',id).eq('status','active').single();
  if(error||!data){appEl.className='card';appEl.style.padding='30px';appEl.textContent='Oglas ne obstaja ali ni več aktiven.';return}
  currentListing=data;document.title=data.title+' — AvtoMarket';crumbTitleEl.textContent=data.title;
- const imgs=(data.image_urls&&data.image_urls.length?data.image_urls:['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1400&q=85']);
+ const imgs=Array.isArray(data.image_urls)?data.image_urls.filter(Boolean):[];
  appEl.className='';appEl.innerHTML=`
  <div class="layout">
    <section>
-    <div class="card gallery"><div id="heroPhoto" class="heroPhoto" style="background-image:url('${imgs[0]}')"></div><div class="thumbs">${imgs.map((u,i)=>`<div loading="lazy" class="thumb ${i===0?'active':''}" style="background-image:url('${u}')" onclick="setPhoto('${u}',this)"></div>`).join('')}</div></div>
+    <div class="card gallery"><div id="heroPhoto" class="heroPhoto" style="${imgs.length?`background-image:url('${imgs[0]}')`:'display:grid;place-items:center;color:#707784'}">${imgs.length?'':'Fotografija ni na voljo'}</div><div class="thumbs">${imgs.map((u,i)=>`<div loading="lazy" class="thumb ${i===0?'active':''}" style="background-image:url('${u}')" onclick="setPhoto('${u}',this)"></div>`).join('')}</div></div>
     <div class="card info" style="margin-top:16px">
       <div class="topline"><div class="title"><h1>${esc(data.title)}</h1><div class="subtitle">${esc(data.location||'Slovenija')} · objavljeno na AvtoMarket</div></div><div class="price">${money(data.price)}</div></div>
       <div class="specGrid">
