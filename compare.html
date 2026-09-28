@@ -22,7 +22,7 @@ async function marketPosition(x){
 }
 async function load(){
  const list=ids(); if(!list.length){app.className='empty';app.innerHTML='Še nisi dodal vozil v primerjavo.<br><br><a class="btn dark" href="index.html">Poglej oglase</a>';return}
- const {data,error}=await db.from('listings').select('*').in('id',list); if(error){app.textContent=error.message;return}
+ const {data,error}=await db.from('listings').select('*').in('id',list).eq('status','active'); if(error){app.textContent=error.message;return}
  const ordered=list.map(id=>(data||[]).find(x=>x.id===id)).filter(Boolean); if(!ordered.length){app.textContent='Izbrani oglasi niso več na voljo.';return}
  const positions=await Promise.all(ordered.map(marketPosition)); const cols=ordered.length; app.className='tableWrap'; app.style.setProperty('--cols',cols);
  const cellRow=(label,fn)=>'<div class="row"><div class="cell label">'+label+'</div>'+ordered.map((x,i)=>'<div class="cell">'+fn(x,i)+'</div>').join('')+'</div>';
