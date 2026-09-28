@@ -279,7 +279,12 @@ function aiFilter(){
  if(foundBrands.length===1&&brandEl){brandEl.value=foundBrands[0];updateModelFilter()}
  if(foundBrands.length>1&&brandEl){brandEl.value='Vse znamke';updateModelFilter()}
  const activeModels=brandEl&&brandEl.value!=='Vse znamke'?(modelCatalog[brandEl.value]||[]):[];
- const fm=activeModels.find(m=>q.includes(m.toLowerCase()));if(fm&&modelEl)modelEl.value=fm;
+ let fm=activeModels.find(m=>q.includes(m.toLowerCase()));
+ if(!fm&&!foundBrands.length){
+   const inferred=Object.entries(modelCatalog).flatMap(([brand,models])=>models.filter(model=>model.length>=3&&q.includes(model.toLowerCase())).map(model=>({brand,model}))).sort((a,b)=>b.model.length-a.model.length)[0];
+   if(inferred&&brandEl&&modelEl){foundBrands.push(inferred.brand);brandEl.value=inferred.brand;updateModelFilter();fm=inferred.model}
+ }
+ if(fm&&modelEl)modelEl.value=fm;
  const gearEl=$('gearFilter'),fuelEl=$('fuelFilter'),bodyEl=$('bodyFilter'),priceEl=$('price'),yearEl=$('year'),kmEl=$('kmFilter');
  if(q.includes('avtomatik')||q.includes('dsg'))gearEl.value='Avtomatik';
  if(q.includes('ročni')||q.includes('rocni'))gearEl.value='Ročni';
