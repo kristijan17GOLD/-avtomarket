@@ -46,7 +46,7 @@ footer{padding:34px 0 46px;color:var(--muted);font-size:12px;background:#fff}.fo
 <div class="aiSearch"><div class="aiSearchTop"><span style="font-weight:950">✦ AI iskanje</span><input id="aiQuery" placeholder="npr. Audi ali BMW do 30.000 €, dizel, avtomatik, od 2020"><button onclick="aiFilter()">Najdi</button></div><div class="aiHint">Opiši vozilo po svoje – sistem bo sam nastavil filtre.</div></div>
 <div class="quick"><a class="btn green" href="najdi-mi-avto.html">Najdi mi avto po mojih željah →</a><button onclick="quick('Elektrika')">⚡ Električna</button><button onclick="quick('Avtomatik')">Avtomatik</button><button onclick="quick('SUV')">SUV</button><button onclick="resetFilters()">Vsa vozila</button></div>
 <div class="stats"><div class="stat"><strong id="activeCount">—</strong><span>aktivnih oglasov</span></div><div class="stat"><strong id="sellerCount">—</strong><span>registriranih profilov</span></div><div class="stat"><strong>3</strong><span>regionalni trgi</span></div></div></div>
-<div class="visual"><div class="visualImg"></div><div class="visualBottom"><div><strong>Volkswagen Golf R-Line</strong><small>2021 · DSG · Slovenija</small></div><div><strong>20.900 €</strong><small>primer oglasa</small></div></div></div></div></section>
+<div class="visual"><div class="visualImg"></div><div class="visualBottom"><div><strong>Najdi vozilo zase</strong><small>Brskaj med objavljenimi oglasi</small></div><div><strong>AvtoMarket</strong><small>Iskanje po tvojih željah</small></div></div></div></div></section>
 
 <section class="categoryExplorer"><div class="wrap">
 <h2>Izberi rubriko</h2>
@@ -199,15 +199,7 @@ function updateModelFilter(){
  modelEl.innerHTML='<option value="">Vsi modeli</option>'+models.map(x=>'<option>'+x+'</option>').join('')+(b&&b!=='Vse znamke'?'<option>Drugo</option>':'');
 }
 
-const fallbackCars=[
-{id:1,featured:true,country:'SI',vehicle_type:'car',brand:'BMW',name:'BMW 330e M Sport',year:2022,km:62000,fuel:'Hibrid',gear:'Avtomatik',body:'Limuzina',price:31990,seller:'Avto Center Ljubljana',tag:'Odlična cena',photo:'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=85',desc:'Lepo ohranjen primerek, redno servisiran, bogata M Sport oprema in avtomatski menjalnik.'},
-{id:2,featured:true,country:'SI',vehicle_type:'car',brand:'Audi',name:'Audi A4 40 TDI S line',year:2021,km:88500,fuel:'Dizel',gear:'Avtomatik',body:'Karavan',price:27490,seller:'Premium Cars',tag:'Preverjen prodajalec',photo:'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=85',desc:'S line paket, digitalni kokpit, LED žarometi in dokumentirana servisna zgodovina.'},
-{id:3,featured:true,country:'SI',vehicle_type:'car',brand:'Volkswagen',name:'Volkswagen Golf 1.5 eTSI R-Line',year:2021,km:145000,fuel:'Bencin',gear:'Avtomatik',body:'Hatchback',price:20900,seller:'Avto Posavje',tag:'Svež oglas',photo:'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=85',desc:'R-Line izgled, DSG menjalnik, navigacija in veliko dodatne opreme.'},
-{id:4,featured:false,country:'SI',vehicle_type:'car',brand:'Mercedes-Benz',name:'Mercedes-Benz GLC 220 d 4Matic',year:2020,km:103000,fuel:'Dizel',gear:'Avtomatik',body:'SUV',price:34900,seller:'Star Motors',tag:'Top ponudba',photo:'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=85',desc:'4Matic pogon, avtomatik, SUV karoserija in zelo urejena notranjost.'},
-{id:5,featured:false,country:'SI',vehicle_type:'car',brand:'Škoda',name:'Škoda Octavia 2.0 TDI Style',year:2022,km:74000,fuel:'Dizel',gear:'Avtomatik',body:'Karavan',price:24490,seller:'Avtohiša Sever',tag:'1. lastnik',photo:'https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=1200&q=85',desc:'Prostoren družinski karavan z DSG menjalnikom in varčnim dizelskim motorjem.'},
-{id:6,featured:true,country:'SI',vehicle_type:'car',brand:'BMW',name:'BMW i4 eDrive40',year:2023,km:31000,fuel:'Elektrika',gear:'Avtomatik',body:'Limuzina',price:47900,seller:'E-Mobility Center',tag:'Električno',photo:'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=1200&q=85',desc:'Električni i4 z dolgim dosegom, hitrim polnjenjem in premium opremo.'}
-];
-let cars=[...fallbackCars];
+let cars=[];
 async function loadStats(){
  const {data,error}=await db.rpc('marketplace_public_stats');if(error)return;
  document.getElementById('activeCount').textContent=new Intl.NumberFormat('sl-SI').format(data?.active_listings||0);
@@ -217,7 +209,7 @@ async function loadCars(){
   try{
   const {data,error}=await db.from('listings').select('id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,body_type,price,image_urls,seller_name,featured,description,created_at,source_name,source_url,external_id,listing_kind').eq('status','active').order('created_at',{ascending:false}).limit(60);
   if(error)throw error;
-  if(!data||!data.length){render();return}
+  if(!data||!data.length){cars=[];current=[];renderHome();return}
   cars=data.map((r,i)=>({
     id:r.id,country:r.country||'SI',vehicle_type:r.vehicle_type||'car',brand:r.brand,name:r.title,year:r.year,km:r.mileage,fuel:r.fuel,gear:r.transmission,
     body:r.body_type||'',price:Number(r.price),seller:r.seller_name||'Zasebni prodajalec',
@@ -226,9 +218,9 @@ async function loadCars(){
     desc:r.description||'Brez dodatnega opisa.',source_name:r.source_name||'',source_url:r.source_url||'',listing_kind:r.listing_kind||'native'
   }));
   current=[...cars];renderHome();
-  }catch(err){console.error('loadCars failed',err);render();}
+  }catch(err){console.error('loadCars failed',err);cars=[];current=[];renderHome();}
 }
-let current=[...cars];
+let current=[];
 function money(v){return new Intl.NumberFormat('sl-SI').format(v)+' €'}
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function safeImg(u=''){try{const x=new URL(u,location.origin);return ['http:','https:'].includes(x.protocol)?encodeURI(x.href).replace(/'/g,'%27').replace(/\"/g,'%22'):''}catch{return ''}}
