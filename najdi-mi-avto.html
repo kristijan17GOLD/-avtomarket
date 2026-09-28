@@ -19,7 +19,7 @@ header{background:#fff;border-bottom:1px solid var(--line)}.nav{min-height:70px;
 <body>
 <header><div class="wrap nav"><a class="brand" href="index.html">Avto<span>Market</span></a><a href="index.html#vozila">Vsi oglasi</a><a href="sell.html">Objavi vozilo</a></div></header>
 <main class="wrap">
-<div class="intro"><span class="eyebrow">Iskanje po tvojih željah</span><h1>Najdi mi avto</h1><p>Povej, kaj iščeš. Prikažemo samo aktivne oglase, ki ustrezajo izbranim pogojem. Iskanje lahko shraniš in ga pozneje znova odpreš.</p></div>
+<div class="intro"><span class="eyebrow">Iskanje po tvojih željah</span><h1>Najdi mi avto</h1><p>Povej, kaj iščeš. Iščemo med oglasi na AutoMarketu in ročno izbranimi povezavami do Avto.net. Razpoložljivost zunanjih oglasov preveri pri viru.</p></div>
 <div class="layout">
 <form class="panel" id="form"><h2>Kakšen avto želiš?</h2><p>Polja, ki jih pustiš prazna, ne omejujejo rezultatov.</p>
 <div class="fields">
@@ -43,7 +43,7 @@ header{background:#fff;border-bottom:1px solid var(--line)}.nav{min-height:70px;
 const db=window.supabase.createClient('https://esvmfafsqxhcqtuopkap.supabase.co','sb_publishable_04J7SsDJkKSBb_1pi8D1Wg_yL4rrd7Q');
 const form=document.getElementById('form'), results=document.getElementById('results'), count=document.getElementById('count'), summary=document.getElementById('summary');
 const keys=['country','brand','model','price','km','year','fuel','gear'];
-let listings=[],loadError=false;
+let listings=[],loadError=false,partialError=false,aiBrands=[];
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalize=value=>String(value??'').trim().toLocaleLowerCase('sl-SI');
 const number=value=>Number(value)||0;
@@ -54,17 +54,19 @@ function search(){
  const v=values(),matches=listings.filter(c=>
   (!v.country||c.country===v.country)&&
   (!v.brand||normalize(c.brand).includes(normalize(v.brand)))&&
+  (v.brand||!aiBrands.length||aiBrands.includes(normalize(c.brand)))&&
   (!v.model||normalize(c.model||c.title).includes(normalize(v.model))||normalize(c.title).includes(normalize(v.model)))&&
-  (!v.price||number(c.price)<=number(v.price))&&
-  (!v.km||number(c.mileage)<=number(v.km))&&
-  (!v.year||number(c.year)>=number(v.year))&&
+  (!v.price||(c.price!=null&&number(c.price)<=number(v.price)))&&
+  (!v.km||(c.mileage!=null&&number(c.mileage)<=number(v.km)))&&
+  (!v.year||(c.year!=null&&number(c.year)>=number(v.year)))&&
   (!v.fuel||normalize(c.fuel)===normalize(v.fuel))&&
   (!v.gear||normalize(c.transmission)===normalize(v.gear))
  );
  const sort=document.getElementById('sort').value;
- matches.sort((a,b)=>sort==='priceAsc'?number(a.price)-number(b.price):sort==='priceDesc'?number(b.price)-number(a.price):sort==='year'?number(b.year)-number(a.year):new Date(b.created_at)-new Date(a.created_at));
+ matches.sort((a,b)=>{if(sort==='priceAsc'||sort==='priceDesc'){if(a.price==null)return b.price==null?0:1;if(b.price==null)return -1;return sort==='priceAsc'?number(a.price)-number(b.price):number(b.price)-number(a.price)}if(sort==='year'){if(a.year==null)return b.year==null?0:1;if(b.year==null)return -1;return number(b.year)-number(a.year)}return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0)});
  count.textContent=loadError?'Oglasov ni bilo mogoče naložiti':matches.length+' '+(matches.length===1?'ustrezen oglas':matches.length===2?'ustrezna oglasa':'ustreznih oglasov');
- summary.textContent=loadError?'Poskusi znova čez nekaj trenutkov.':'Med trenutno aktivnimi oglasi na AvtoMarket.';
+ const externalCount=matches.filter(c=>c.listing_kind==='external').length;
+ summary.textContent=loadError?'Poskusi znova čez nekaj trenutkov.':externalCount+' zunanjih povezav · '+(partialError?'Del ponudbe trenutno ni dosegljiv.':'Oglasi AutoMarket in ročno izbrane povezave do Avto.net.');
  if(loadError){results.innerHTML='<div class="empty"><strong>Povezava trenutno ne deluje.</strong>Osveži stran in poskusi znova.</div>';return}
  if(!matches.length){results.innerHTML='<div class="empty"><strong>Trenutno ni ujemajočih se oglasov.</strong>Poskusi zvišati proračun ali odstraniti enega od pogojev. Ponudba se spreminja, ko prodajalci dodajo nove oglase.</div>';return}
  results.innerHTML=matches.map(c=>{
@@ -73,23 +75,35 @@ function search(){
   const image=(Array.isArray(c.image_urls)&&c.image_urls[0])||'';
   const safeImage=/^https?:\/\//i.test(image)?image:'';
   const origin=c.source_name?'Vir: '+c.source_name:'AvtoMarket';
-  return '<article class="result"><div class="photo">'+(safeImage?'<img src="'+escapeHtml(safeImage)+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;max-height:230px">':'Fotografija ni na voljo')+'</div><div class="details"><h3>'+escapeHtml(c.title)+'</h3><div class="source">'+escapeHtml(origin)+' · '+escapeHtml(({SI:'Slovenija',HR:'Hrvaška',BA:'Bosna in Hercegovina'})[c.country]||c.country||'')+'</div><div class="specs">'+[c.year,number(c.mileage).toLocaleString('sl-SI')+' km',c.fuel,c.transmission].filter(Boolean).map(x=>'<span class="spec">'+escapeHtml(x)+'</span>').join('')+'</div><div class="foot"><strong>'+money(c.price)+'</strong><a href="'+escapeHtml(href)+'"'+(external?' target="_blank" rel="noopener noreferrer"':'')+'>'+(external?'Poglej pri viru ↗':'Poglej oglas →')+'</a></div></div></article>';
+  return '<article class="result"><div class="photo">'+(safeImage?'<img src="'+escapeHtml(safeImage)+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;max-height:230px">':'Fotografija ni na voljo')+'</div><div class="details"><h3>'+escapeHtml(c.title)+'</h3><div class="source">'+escapeHtml(origin)+' · '+escapeHtml(({SI:'Slovenija',HR:'Hrvaška',BA:'Bosna in Hercegovina'})[c.country]||c.country||'')+(external?' · Razpoložljivost preveri pri viru':'')+'</div><div class="specs">'+[c.year,c.mileage!=null?number(c.mileage).toLocaleString('sl-SI')+' km':null,c.fuel,c.transmission].filter(Boolean).map(x=>'<span class="spec">'+escapeHtml(x)+'</span>').join('')+'</div><div class="foot"><strong>'+(c.price!=null?money(c.price):'Cena pri viru')+'</strong><a href="'+escapeHtml(href)+'"'+(external?' target="_blank" rel="noopener noreferrer"':'')+'>'+(external?'Poglej pri viru ↗':'Poglej oglas →')+'</a></div></div></article>';
  }).join('');
 }
 function updateUrl(){const v=values(),q=new URLSearchParams();for(const k of keys)if(v[k])q.set(k,v[k]);history.replaceState(null,'',location.pathname+(q.size?'?'+q:''))}
-form.addEventListener('submit',e=>{e.preventDefault();updateUrl();search()});
+form.addEventListener('submit',e=>{e.preventDefault();aiBrands=[];updateUrl();search()});
 document.getElementById('sort').addEventListener('change',search);
-document.getElementById('clear').addEventListener('click',()=>{form.reset();updateUrl();search();document.getElementById('saveStatus').textContent=''});
+document.getElementById('clear').addEventListener('click',()=>{form.reset();aiBrands=[];updateUrl();search();document.getElementById('saveStatus').textContent=''});
 document.getElementById('save').addEventListener('click',()=>{const v=values();if(!Object.values(v).some(Boolean)){document.getElementById('saveStatus').textContent='Najprej izberi vsaj en pogoj.';return}localStorage.setItem('am_saved_car_search',JSON.stringify(v));document.getElementById('saveStatus').textContent='Iskanje shranjeno v tem brskalniku.'});
 const params=new URLSearchParams(location.search);
+aiBrands=(params.get('brands')||'').split('|').map(normalize).filter(Boolean);
 if(params.size)hydrate(params);
 else{try{const saved=JSON.parse(localStorage.getItem('am_saved_car_search')||'null');if(saved)hydrate(new URLSearchParams(saved))}catch{}}
-(async()=>{try{
- const {data,error}=await db.from('listings').select('id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,price,image_urls,source_name,source_url,listing_kind,created_at').eq('status','active').eq('vehicle_type','car').order('created_at',{ascending:false}).limit(500);
- if(error)throw error;listings=data||[];
+(async()=>{
+ const [nativeResult,externalResult]=await Promise.allSettled([
+  db.from('listings').select('id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,price,image_urls,source_name,source_url,listing_kind,created_at').eq('status','active').eq('vehicle_type','car').order('created_at',{ascending:false}).limit(500).then(({data,error})=>{if(error)throw error;return data||[]}),
+  fetch('external-listings.json').then(r=>{if(!r.ok)throw Error('Zunanji oglasi niso dosegljivi');return r.json()})
+ ]);
+ if(nativeResult.status==='rejected')console.error('Car search database load failed',nativeResult.reason);
+ if(externalResult.status==='rejected')console.error('Car search external load failed',externalResult.reason);
+ loadError=nativeResult.status==='rejected'&&externalResult.status==='rejected';partialError=!loadError&&(nativeResult.status==='rejected'||externalResult.status==='rejected');
+ const native=nativeResult.status==='fulfilled'?nativeResult.value:[];
+ const seen=new Set(native.map(c=>{let sourceId='';try{sourceId=new URL(c.source_url).searchParams.get('id')||''}catch{}return String(c.external_id||sourceId||c.id).toLowerCase()}));
+ const external=externalResult.status==='fulfilled'&&Array.isArray(externalResult.value)?externalResult.value.filter(c=>{
+  try{const u=new URL(c.url);if(u.protocol!=='https:'||u.hostname!=='www.avto.net'||u.pathname.toLowerCase()!=='/ads/details.asp'||!c.id||seen.has(String(c.id).toLowerCase())||!c.brand||!c.title)return false;seen.add(String(c.id).toLowerCase());return true}catch{return false}
+ }).map(c=>({id:'avtonet-'+c.id,country:'SI',vehicle_type:'car',brand:c.brand,model:c.model||'',title:c.title,year:c.year||null,mileage:null,fuel:null,transmission:null,price:null,image_urls:[],source_name:'Avto.net',source_url:c.url,listing_kind:'external',created_at:null})):[];
+ listings=[...native,...external];
  const brands=[...new Set(listings.map(c=>c.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'sl'));
- document.getElementById('brands').innerHTML=brands.map(b=>'<option value="'+escapeHtml(b)+'"></option>').join('');
- }catch(e){console.error('Car search load failed',e);loadError=true}search()})();
+ document.getElementById('brands').innerHTML=brands.map(b=>'<option value="'+escapeHtml(b)+'"></option>').join('');search();
+})();
 </script>
 </body>
 </html>
