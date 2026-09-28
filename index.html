@@ -299,6 +299,20 @@ function aiFilter(){
  const kmMatch=q.match(/(?:do|max|največ|najvec|manj kot)\s*(\d{2,6})\s*(?:km|kilomet)/);if(kmMatch&&kmEl){const k=+kmMatch[1];kmEl.value=String([50000,100000,150000,200000].find(x=>x>=k)||9999999)}
  const bset=new Set(foundBrands);
  const selectedType=$('vehicleType')?.value||'';
+ if(!selectedType||selectedType==='car'){
+   const params=new URLSearchParams();
+   if(foundBrands.length===1)params.set('brand',foundBrands[0]);
+   if(foundBrands.length>1)params.set('brands',foundBrands.join('|'));
+   if(fm)params.set('model',fm);
+   if(priceMatch){let n=+priceMatch[1];if(n<1000&&(q.includes('tisoč')||q.includes('tisoc')||q.includes('k')))n*=1000;params.set('price',String(n))}
+   if(kmMatch)params.set('km',kmMatch[1]);
+   const requestedYear=yearMatch?.[1]||q.match(/\b(20\d{2})\b/)?.[1];
+   if(requestedYear)params.set('year',requestedYear);
+   if(fuelEl?.value)params.set('fuel',fuelEl.value);
+   if(gearEl?.value)params.set('gear',gearEl.value);
+   location.href='najdi-mi-avto.html'+(params.size?'?'+params:'');
+   return;
+ }
  current=cars.filter(car=>
    (!selectedType||car.vehicle_type===selectedType)&&
    (!bset.size||bset.has(car.brand))&&
