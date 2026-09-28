@@ -169,14 +169,14 @@ function updateVehicleForm(){
  if(brands.includes(previousBrand)) brand.value=previousBrand;
  updateSellModels();
  const bodyOptions={
-  car:['Limuzina','Karavan','SUV','Hatchback','Coupe','Kabriolet'],
-  motorcycle:['Naked','Sport','Touring','Enduro','Cross / Motocross','Supermoto','Skuter','Moped','Chopper / Cruiser','Tricikel / 3-kolesnik'],
+  car:['Limuzina','Karavan','SUV','Hatchback','Coupe','Kabriolet','Oldtimer'],
+  motorcycle:['Naked','Sport','Touring','Enduro','Cross / Motocross','Supermoto','Skuter','Moped','Chopper / Cruiser','Tricikel / 3-kolesnik','Minimoto'],
   van:['Furgon','Potniški kombi','Dvojna kabina','Hladilnik'],
   truck:['Vlačilec','Kiper','Tovorni','Cisterna','Avtovleka'],
   atv:['ATV','UTV','Quad'],
   camper:['Alkoven','Integriran','Polintegriran','Campervan'],
   trailer:['Tovorna prikolica','Avto prikolica','Prikolica za plovilo','Bivalna prikolica'],
-  commercial:['Delovni stroj','Specialno vozilo','Drugo']
+  commercial:['Delovni stroj','Gradbena mehanizacija','Kmetijska mehanizacija','Viličar','Specialno vozilo','Avtobus','Dostavni tricikel','Pick-up','Go-kart','Motorne sani','Mobilna hišica','Snemljivi bivalnik','Navtika','E-kolo','E-skiro','Drugo']
  };
  body.innerHTML=(bodyOptions[t]||bodyOptions.car).map(x=>'<option>'+x+'</option>').join('');
  const fuelOptions=t==='motorcycle'||t==='atv'

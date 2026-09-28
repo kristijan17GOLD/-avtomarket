@@ -119,8 +119,67 @@ moreInfo:'Više informacija'
 }
 };
 
+// Additional interface copy used by the search page and vehicle categories.
+const extra={
+ sl:{
+  heroPill:'BOLJŠI NAČIN ZA AVTO OGLASE',heroTitle:'Avto iščeš. Ne oglasa med oglasi.',
+  heroCopy:'AvtoMarket je zasnovan tako, da hitro najdeš pomembne podatke, primerjaš ponudbo in stopiš v stik s preverjenim prodajalcem.',
+  findCar:'Najdi mi avto',why:'Zakaj AvtoMarket',chooseCategory:'Izberi rubriko',chooseSub:'Izberite podrubriko',
+  narrow:'Hitro zoži iskanje na pravo vrsto vozila.',allBody:'Vse',bodySubtype:'Karoserija / podvrsta',
+  car:'Avto',moto:'Moto',business:'Gospodarska',machinery:'Mehanizacija',leisure:'Prosti čas',parts:'Deli in oprema',
+  passenger:'Osebni avti',motorcycles:'Motorji',vans:'Kombiji',trucks:'Tovornjaki',atvs:'Štirikolesniki / ATV',campers:'Avtodomi',trailers:'Prikolice',commercial:'Gospodarska vozila',
+  scooter:'Skuter / Maxi skuter',cross:'Cross / Motocross',tricycle:'3-kolesnik / Tricikel',electric:'Električni',hybrid:'Hibridni',
+  aiFind:'Najdi',aiHint:'Opiši vozilo po svoje – sistem bo sam nastavil filtre.',wishSearch:'Najdi mi avto po mojih željah →',
+  activeAds:'aktivnih oglasov',profiles:'registriranih profilov',markets:'regionalni trgi',
+  noAds:'Trenutno še ni oglasov.',noResults:'Za izbrane filtre ni vozil.',photoMissing:'Fotografija ni na voljo'
+ },
+ hr:{
+  heroPill:'BOLJI NAČIN ZA AUTO OGLASE',heroTitle:'Tražiš auto. Ne oglas među oglasima.',
+  heroCopy:'AvtoMarket ti pomaže brzo pronaći važne podatke, usporediti ponudu i stupiti u kontakt s prodavateljem.',
+  findCar:'Pronađi mi auto',why:'Zašto AvtoMarket',chooseCategory:'Odaberi kategoriju',chooseSub:'Odaberi potkategoriju',
+  narrow:'Brzo suzi pretragu na pravu vrstu vozila.',allBody:'Sve',bodySubtype:'Karoserija / podvrsta',
+  car:'Auto',moto:'Motocikli',business:'Gospodarska',machinery:'Mehanizacija',leisure:'Slobodno vrijeme',parts:'Dijelovi i oprema',
+  passenger:'Osobni automobili',motorcycles:'Motocikli',vans:'Kombiji',trucks:'Kamioni',atvs:'Četverocikli / ATV',campers:'Kamperi',trailers:'Prikolice',commercial:'Gospodarska vozila',
+  scooter:'Skuter / Maxi skuter',cross:'Cross / Motocross',tricycle:'Trokolica / Tricikl',electric:'Električni',hybrid:'Hibridni',
+  aiFind:'Pronađi',aiHint:'Opiši vozilo svojim riječima – sustav će postaviti filtre.',wishSearch:'Pronađi auto po svojim željama →',
+  activeAds:'aktivnih oglasa',profiles:'registriranih profila',markets:'regionalna tržišta',
+  noAds:'Trenutačno nema oglasa.',noResults:'Nema vozila za odabrane filtre.',photoMissing:'Fotografija nije dostupna'
+ },
+ sr:{
+  heroPill:'BOLJI NAČIN ZA AUTO OGLASE',heroTitle:'Tražiš auto. Ne oglas među oglasima.',
+  heroCopy:'AvtoMarket ti pomaže da brzo pronađeš važne podatke, uporediš ponudu i kontaktiraš prodavca.',
+  findCar:'Pronađi mi auto',why:'Zašto AvtoMarket',chooseCategory:'Izaberi kategoriju',chooseSub:'Izaberi potkategoriju',
+  narrow:'Brzo suzi pretragu na pravu vrstu vozila.',allBody:'Sve',bodySubtype:'Karoserija / podvrsta',
+  car:'Auto',moto:'Motocikli',business:'Privredna',machinery:'Mehanizacija',leisure:'Slobodno vreme',parts:'Delovi i oprema',
+  passenger:'Putnički automobili',motorcycles:'Motocikli',vans:'Kombiji',trucks:'Kamioni',atvs:'Četvorocikli / ATV',campers:'Kamperi',trailers:'Prikolice',commercial:'Privredna vozila',
+  scooter:'Skuter / Maxi skuter',cross:'Kros / Motokros',tricycle:'Trocikl / 3 točka',electric:'Električni',hybrid:'Hibridni',
+  aiFind:'Pronađi',aiHint:'Opiši vozilo svojim rečima – sistem će postaviti filtere.',wishSearch:'Pronađi auto po svojim željama →',
+  activeAds:'aktivnih oglasa',profiles:'registrovanih profila',markets:'regionalna tržišta',
+  noAds:'Trenutno nema oglasa.',noResults:'Nema vozila za izabrane filtere.',photoMissing:'Fotografija nije dostupna'
+ },
+ bs:{
+  heroPill:'BOLJI NAČIN ZA AUTO OGLASE',heroTitle:'Tražiš auto. Ne oglas među oglasima.',
+  heroCopy:'AvtoMarket ti pomaže da brzo pronađeš važne podatke, uporediš ponudu i kontaktiraš prodavača.',
+  findCar:'Pronađi mi auto',why:'Zašto AvtoMarket',chooseCategory:'Izaberi kategoriju',chooseSub:'Izaberi potkategoriju',
+  narrow:'Brzo suzi pretragu na pravu vrstu vozila.',allBody:'Sve',bodySubtype:'Karoserija / podvrsta',
+  car:'Auto',moto:'Motocikli',business:'Privredna',machinery:'Mehanizacija',leisure:'Slobodno vrijeme',parts:'Dijelovi i oprema',
+  passenger:'Putnički automobili',motorcycles:'Motocikli',vans:'Kombiji',trucks:'Kamioni',atvs:'Četverocikli / ATV',campers:'Kamperi',trailers:'Prikolice',commercial:'Privredna vozila',
+  scooter:'Skuter / Maxi skuter',cross:'Kros / Motokros',tricycle:'Trokolica / 3 točka',electric:'Električni',hybrid:'Hibridni',
+  aiFind:'Pronađi',aiHint:'Opiši vozilo svojim riječima – sistem će postaviti filtere.',wishSearch:'Pronađi auto po svojim željama →',
+  activeAds:'aktivnih oglasa',profiles:'registrovanih profila',markets:'regionalna tržišta',
+  noAds:'Trenutno nema oglasa.',noResults:'Nema vozila za izabrane filtere.',photoMissing:'Fotografija nije dostupna'
+ }
+};
+const searchCopy={
+ sl:{allAds:'Vsi oglasi',searchWish:'Iskanje po tvojih željah',wantCar:'Kakšen avto želiš?',optionalFields:'Polja, ki jih pustiš prazna, ne omejujejo rezultatov.',allCountries:'Vse države',montenegro:'Črna gora',albania:'Albanija',serbia:'Srbija',allFuels:'Vsa goriva',allGears:'Vsi menjalniki',clear:'Počisti',saveSearch:'Shrani iskanje',savedNote:'Shranjeno iskanje ostane v tem brskalniku. Obvestila o novih oglasih še niso vključena.',findCarButton:'Poišči avto',newest:'Najnovejši',lowPrice:'Najnižja cena',highPrice:'Najvišja cena',newerYear:'Novejši letnik'},
+ hr:{allAds:'Svi oglasi',searchWish:'Pretraga prema tvojim željama',wantCar:'Kakav auto želiš?',optionalFields:'Prazna polja ne ograničavaju rezultate.',allCountries:'Sve države',montenegro:'Crna Gora',albania:'Albanija',serbia:'Srbija',allFuels:'Sva goriva',allGears:'Svi mjenjači',clear:'Očisti',saveSearch:'Spremi pretragu',savedNote:'Spremljena pretraga ostaje u ovom pregledniku. Obavijesti o novim oglasima još nisu dostupne.',findCarButton:'Pronađi auto',newest:'Najnoviji',lowPrice:'Najniža cijena',highPrice:'Najviša cijena',newerYear:'Novije godište'},
+ sr:{allAds:'Svi oglasi',searchWish:'Pretraga po tvojim željama',wantCar:'Kakav auto želiš?',optionalFields:'Prazna polja ne ograničavaju rezultate.',allCountries:'Sve države',montenegro:'Crna Gora',albania:'Albanija',serbia:'Srbija',allFuels:'Sva goriva',allGears:'Svi menjači',clear:'Očisti',saveSearch:'Sačuvaj pretragu',savedNote:'Sačuvana pretraga ostaje u ovom pregledaču. Obaveštenja o novim oglasima još nisu dostupna.',findCarButton:'Pronađi auto',newest:'Najnoviji',lowPrice:'Najniža cena',highPrice:'Najviša cena',newerYear:'Novije godište'},
+ bs:{allAds:'Svi oglasi',searchWish:'Pretraga po tvojim željama',wantCar:'Kakav auto želiš?',optionalFields:'Prazna polja ne ograničavaju rezultate.',allCountries:'Sve države',montenegro:'Crna Gora',albania:'Albanija',serbia:'Srbija',allFuels:'Sva goriva',allGears:'Svi mjenjači',clear:'Očisti',saveSearch:'Sačuvaj pretragu',savedNote:'Sačuvana pretraga ostaje u ovom pregledniku. Obavještenja o novim oglasima još nisu dostupna.',findCarButton:'Pronađi auto',newest:'Najnoviji',lowPrice:'Najniža cijena',highPrice:'Najviša cijena',newerYear:'Novije godište'}
+};
+for(const code of Object.keys(dict)) Object.assign(dict[code],extra[code],searchCopy[code]);
+
 const reverse={};
-for(const [lng,d] of Object.entries(dict)) for(const [k,v] of Object.entries(d)) reverse[v]=k;
+for(const [lng,d] of Object.entries(dict)) for(const [k,v] of Object.entries(d)) if(!(v in reverse)) reverse[v]=k;
 
 function lang(){const l=localStorage.getItem(LANG_KEY)||'sl';return ['sl','hr','sr','bs'].includes(l)?l:'sl'}
 function t(key){return (dict[lang()]||dict.sl)[key]||dict.sl[key]||key}
@@ -140,6 +199,8 @@ function translateString(raw){
 function translateElement(el){
  if(el.nodeType===Node.TEXT_NODE){el.nodeValue=translateString(el.nodeValue);return}
  if(el.nodeType!==Node.ELEMENT_NODE)return;
+ // Option labels may change language; their data values must stay stable for filters and saved ads.
+ if(el.tagName==='OPTION'&&!el.hasAttribute('value')) el.value=el.textContent.trim();
  if(el.matches('[data-i18n]')){const k=el.dataset.i18n;if(k)el.textContent=t(k);return}
  if(el.matches('[data-i18n-placeholder]')){const k=el.dataset.i18nPlaceholder;if(k)el.placeholder=t(k)}
  if(el.matches('[data-country-label]')){const code=el.dataset.countryLabel;el.textContent=code==='SI'?t('slovenia'):code==='HR'?t('croatia'):t('bosnia')}
@@ -155,6 +216,7 @@ function translate(root=document.body){
  busy=false;
 }
 function inject(){
+ document.querySelectorAll('option:not([value])').forEach(option=>option.value=option.textContent.trim());
  const nav=document.querySelector('header .nav');
  if(nav&&!document.getElementById('amLanguage')){
   const wrap=document.createElement('div');wrap.style.cssText='display:flex;align-items:center;gap:6px';
