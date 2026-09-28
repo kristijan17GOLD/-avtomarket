@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Najdi mi avto | AvtoMarket</title>
+<meta name="description" content="Izberi znamko, proračun, letnik in druge želje ter poišči vozila med aktivnimi oglasi na AvtoMarket.">
+<link rel="canonical" href="https://avtomarket-coral.vercel.app/najdi-mi-avto.html">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{--ink:#111b24;--muted:#667480;--line:#dce5e9;--green:#147c68;--light:#eaf7f3;--bg:#f4f7f8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer}.wrap{max-width:1180px;margin:auto;padding:0 20px}
+header{background:#fff;border-bottom:1px solid var(--line)}.nav{min-height:70px;display:flex;align-items:center;gap:25px}.brand{font-size:24px;font-weight:900;letter-spacing:-.7px}.brand span{color:var(--green)}.nav a:nth-child(2){margin-left:auto;font-weight:700}.nav a:nth-child(3){font-weight:700;color:var(--green)}
+.intro{padding:42px 0 24px}.eyebrow{color:var(--green);font-size:13px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}.intro h1{font-size:clamp(34px,5vw,54px);line-height:1.08;letter-spacing:-.04em;margin:9px 0 12px}.intro p{color:var(--muted);font-size:17px;line-height:1.55;max-width:680px;margin:0}
+.layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:25px;align-items:start;padding-bottom:70px}.panel,.result,.empty{background:#fff;border:1px solid var(--line);border-radius:18px}.panel{padding:22px;position:sticky;top:18px;box-shadow:0 12px 40px rgba(17,27,36,.04)}.panel h2{font-size:21px;margin:0 0 4px}.panel>p{margin:0 0 20px;color:var(--muted);font-size:14px;line-height:1.45}.fields{display:grid;gap:13px}.fields label{display:block;font-size:14px;font-weight:750}.fields input,.fields select{width:100%;padding:12px;border:1px solid #cbd7dd;border-radius:10px;margin-top:6px;background:#fff;color:var(--ink);min-height:46px}.fields input:focus,.fields select:focus{outline:2px solid var(--green);outline-offset:1px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:flex;gap:9px;margin-top:20px}.primary,.secondary{border-radius:10px;padding:12px 16px;font-weight:800;border:1px solid var(--green)}.primary{background:var(--green);color:#fff;flex:1}.secondary{background:#fff;color:var(--green)}.save{width:100%;margin-top:10px}.note{font-size:13px;color:var(--muted);line-height:1.45;margin-top:13px}.status{min-height:22px;margin:12px 0 0;color:var(--green);font-size:14px;font-weight:700}
+.resultsHead{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:2px 0 18px}.resultsHead h2{font-size:27px;letter-spacing:-.03em;margin:0}.resultsHead p{color:var(--muted);margin:4px 0 0;font-size:14px}.resultsHead select{border:1px solid var(--line);padding:10px;border-radius:10px;background:#fff;max-width:170px}.results{display:grid;gap:14px}.result{display:grid;grid-template-columns:210px minmax(0,1fr);overflow:hidden}.photo{background:#e3ecee;min-height:184px;background-size:cover;background-position:center;display:grid;place-items:center;color:var(--muted);font-size:14px}.details{padding:18px 20px}.result h3{font-size:20px;line-height:1.22;margin:0 0 5px}.source{font-size:13px;color:var(--muted)}.specs{display:flex;flex-wrap:wrap;gap:7px;margin:13px 0}.spec{border-radius:7px;background:#eff3f5;padding:6px 8px;font-size:13px}.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--line);padding-top:12px}.foot strong{font-size:22px}.foot a{background:var(--ink);color:#fff;padding:10px 13px;border-radius:9px;font-size:14px;font-weight:750}.empty{padding:30px;color:var(--muted);line-height:1.55}.empty strong{display:block;color:var(--ink);font-size:20px;margin-bottom:7px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.panel{position:static}.fields{grid-template-columns:repeat(2,1fr)}.pair{grid-column:span 2}.actions{max-width:420px}}@media(max-width:620px){.wrap{padding:0 15px}.nav{min-height:62px}.nav a:nth-child(2){font-size:14px}.nav a:nth-child(3){display:none}.intro{padding-top:28px}.fields{grid-template-columns:1fr}.pair{grid-column:auto}.result{grid-template-columns:1fr}.photo{min-height:220px}.resultsHead{align-items:start;flex-direction:column}.resultsHead select{max-width:none;width:100%}.foot strong{font-size:20px}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="brand" href="index.html">Avto<span>Market</span></a><a href="index.html#vozila">Vsi oglasi</a><a href="sell.html">Objavi vozilo</a></div></header>
+<main class="wrap">
+<div class="intro"><span class="eyebrow">Iskanje po tvojih željah</span><h1>Najdi mi avto</h1><p>Povej, kaj iščeš. Prikažemo samo aktivne oglase, ki ustrezajo izbranim pogojem. Iskanje lahko shraniš in ga pozneje znova odpreš.</p></div>
+<div class="layout">
+<form class="panel" id="form"><h2>Kakšen avto želiš?</h2><p>Polja, ki jih pustiš prazna, ne omejujejo rezultatov.</p>
+<div class="fields">
+<label>Država<select name="country"><option value="">Vse države</option><option value="SI">Slovenija</option><option value="HR">Hrvaška</option><option value="BA">Bosna in Hercegovina</option></select></label>
+<label>Znamka<input name="brand" list="brands" placeholder="npr. Volkswagen" autocomplete="off"><datalist id="brands"></datalist></label>
+<label>Model<input name="model" placeholder="npr. Golf" autocomplete="off"></label>
+<div class="pair"><label>Cena do (€)<input name="price" type="number" min="0" step="100" inputmode="numeric" placeholder="npr. 25000"></label><label>Največ km<input name="km" type="number" min="0" step="1000" inputmode="numeric" placeholder="npr. 100000"></label></div>
+<label>Letnik od<input name="year" type="number" min="1900" max="2100" step="1" inputmode="numeric" placeholder="npr. 2020"></label>
+<div class="pair"><label>Gorivo<select name="fuel"><option value="">Vsa goriva</option><option>Bencin</option><option>Dizel</option><option>Hibrid</option><option>Elektrika</option></select></label><label>Menjalnik<select name="gear"><option value="">Vsi menjalniki</option><option>Avtomatik</option><option>Ročni</option></select></label></div>
+</div>
+<div class="actions"><button class="primary" type="submit">Poišči avto</button><button class="secondary" type="button" id="clear">Počisti</button></div>
+<button class="secondary save" type="button" id="save">Shrani iskanje</button>
+<p class="note">Shranjeno iskanje ostane v tem brskalniku. Obvestila o novih oglasih še niso vključena.</p>
+<p class="status" id="saveStatus" role="status" aria-live="polite"></p>
+</form>
+<section aria-label="Rezultati iskanja"><div class="resultsHead"><div><h2 id="count">Nalagam oglase …</h2><p id="summary">Preverjamo trenutno ponudbo.</p></div><select id="sort" aria-label="Razvrsti oglase"><option value="new">Najnovejši</option><option value="priceAsc">Najnižja cena</option><option value="priceDesc">Najvišja cena</option><option value="year">Novejši letnik</option></select></div><div class="results" id="results" aria-live="polite"></div></section>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=window.supabase.createClient('https://esvmfafsqxhcqtuopkap.supabase.co','sb_publishable_04J7SsDJkKSBb_1pi8D1Wg_yL4rrd7Q');
+const form=document.getElementById('form'), results=document.getElementById('results'), count=document.getElementById('count'), summary=document.getElementById('summary');
+const keys=['country','brand','model','price','km','year','fuel','gear'];
+let listings=[],loadError=false;
+const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const normalize=value=>String(value??'').trim().toLocaleLowerCase('sl-SI');
+const number=value=>Number(value)||0;
+const money=value=>new Intl.NumberFormat('sl-SI',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(number(value));
+function values(){return Object.fromEntries(keys.map(k=>[k,form.elements[k].value.trim()]))}
+function hydrate(params){for(const k of keys)if(params.has(k))form.elements[k].value=params.get(k)||''}
+function search(){
+ const v=values(),matches=listings.filter(c=>
+  (!v.country||c.country===v.country)&&
+  (!v.brand||normalize(c.brand).includes(normalize(v.brand)))&&
+  (!v.model||normalize(c.model||c.title).includes(normalize(v.model))||normalize(c.title).includes(normalize(v.model)))&&
+  (!v.price||number(c.price)<=number(v.price))&&
+  (!v.km||number(c.mileage)<=number(v.km))&&
+  (!v.year||number(c.year)>=number(v.year))&&
+  (!v.fuel||normalize(c.fuel)===normalize(v.fuel))&&
+  (!v.gear||normalize(c.transmission)===normalize(v.gear))
+ );
+ const sort=document.getElementById('sort').value;
+ matches.sort((a,b)=>sort==='priceAsc'?number(a.price)-number(b.price):sort==='priceDesc'?number(b.price)-number(a.price):sort==='year'?number(b.year)-number(a.year):new Date(b.created_at)-new Date(a.created_at));
+ count.textContent=loadError?'Oglasov ni bilo mogoče naložiti':matches.length+' '+(matches.length===1?'ustrezen oglas':matches.length===2?'ustrezna oglasa':'ustreznih oglasov');
+ summary.textContent=loadError?'Poskusi znova čez nekaj trenutkov.':'Med trenutno aktivnimi oglasi na AvtoMarket.';
+ if(loadError){results.innerHTML='<div class="empty"><strong>Povezava trenutno ne deluje.</strong>Osveži stran in poskusi znova.</div>';return}
+ if(!matches.length){results.innerHTML='<div class="empty"><strong>Trenutno ni ujemajočih se oglasov.</strong>Poskusi zvišati proračun ali odstraniti enega od pogojev. Ponudba se spreminja, ko prodajalci dodajo nove oglase.</div>';return}
+ results.innerHTML=matches.map(c=>{
+  const external=c.listing_kind==='external'&&/^https?:\/\//i.test(c.source_url||'');
+  const href=external?c.source_url:'listing.html?id='+encodeURIComponent(c.id);
+  const image=(Array.isArray(c.image_urls)&&c.image_urls[0])||'';
+  const safeImage=/^https?:\/\//i.test(image)?image:'';
+  const origin=c.source_name?'Vir: '+c.source_name:'AvtoMarket';
+  return '<article class="result"><div class="photo">'+(safeImage?'<img src="'+escapeHtml(safeImage)+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;max-height:230px">':'Fotografija ni na voljo')+'</div><div class="details"><h3>'+escapeHtml(c.title)+'</h3><div class="source">'+escapeHtml(origin)+' · '+escapeHtml(({SI:'Slovenija',HR:'Hrvaška',BA:'Bosna in Hercegovina'})[c.country]||c.country||'')+'</div><div class="specs">'+[c.year,number(c.mileage).toLocaleString('sl-SI')+' km',c.fuel,c.transmission].filter(Boolean).map(x=>'<span class="spec">'+escapeHtml(x)+'</span>').join('')+'</div><div class="foot"><strong>'+money(c.price)+'</strong><a href="'+escapeHtml(href)+'"'+(external?' target="_blank" rel="noopener noreferrer"':'')+'>'+(external?'Poglej pri viru ↗':'Poglej oglas →')+'</a></div></div></article>';
+ }).join('');
+}
+function updateUrl(){const v=values(),q=new URLSearchParams();for(const k of keys)if(v[k])q.set(k,v[k]);history.replaceState(null,'',location.pathname+(q.size?'?'+q:''))}
+form.addEventListener('submit',e=>{e.preventDefault();updateUrl();search()});
+document.getElementById('sort').addEventListener('change',search);
+document.getElementById('clear').addEventListener('click',()=>{form.reset();updateUrl();search();document.getElementById('saveStatus').textContent=''});
+document.getElementById('save').addEventListener('click',()=>{const v=values();if(!Object.values(v).some(Boolean)){document.getElementById('saveStatus').textContent='Najprej izberi vsaj en pogoj.';return}localStorage.setItem('am_saved_car_search',JSON.stringify(v));document.getElementById('saveStatus').textContent='Iskanje shranjeno v tem brskalniku.'});
+const params=new URLSearchParams(location.search);
+if(params.size)hydrate(params);
+else{try{const saved=JSON.parse(localStorage.getItem('am_saved_car_search')||'null');if(saved)hydrate(new URLSearchParams(saved))}catch{}}
+(async()=>{try{
+ const {data,error}=await db.from('listings').select('id,country,vehicle_type,brand,model,title,year,mileage,fuel,transmission,price,image_urls,source_name,source_url,listing_kind,created_at').eq('status','active').eq('vehicle_type','car').order('created_at',{ascending:false}).limit(500);
+ if(error)throw error;listings=data||[];
+ const brands=[...new Set(listings.map(c=>c.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'sl'));
+ document.getElementById('brands').innerHTML=brands.map(b=>'<option value="'+escapeHtml(b)+'"></option>').join('');
+ }catch(e){console.error('Car search load failed',e);loadError=true}search()})();
+</script>
+</body>
+</html>
